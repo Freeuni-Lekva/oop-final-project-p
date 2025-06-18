@@ -9,17 +9,23 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Build Java
+      - name: Set up Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Build project (skip tests)
         run: |
           cd Seminars/Adikashvili/11
           mvn clean install -DskipTests
+
   unit-tests:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup java
+      - name: Set up Java
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
