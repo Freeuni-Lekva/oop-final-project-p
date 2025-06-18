@@ -1,36 +1,32 @@
 name: test
-
 on:
+  push:
+    branches: [ master, main ]
   pull_request:
-
+    branches: [ master, main ]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
-      - name: Set up Java
-        uses: actions/setup-java@v1
+      - name: Setup Java
+        uses: actions/setup-java@v3
         with:
-          java-version: 1.8
-
-      - name: Build project (skip tests)
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Build Java
         run: |
-          cd Seminars/Adikashvili/11
           mvn clean install -DskipTests
-
   unit-tests:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
-      - name: Set up Java
-        uses: actions/setup-java@v1
+      - name: Setup Java
+        uses: actions/setup-java@v3
         with:
-          java-version: 1.8
-
+          java-version: '17'
+          distribution: 'temurin'
       - name: Run unit tests
         run: |
-          cd Seminars/Adikashvili/11
           mvn test
