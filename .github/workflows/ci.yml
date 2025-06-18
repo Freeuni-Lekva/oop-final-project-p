@@ -19,10 +19,11 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: 'maven'  # Speeds up builds by caching ~/.m2/repository
+          cache: 'maven'
 
-      - name: Build the project (skip tests)
+      - name: Build project (skip tests)
         run: mvn clean install -DskipTests
+        working-directory: quiz-website
 
   test:
     needs: build
@@ -39,5 +40,6 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Run unit tests
+      - name: Run tests
         run: mvn test
+        working-directory: quiz-website
