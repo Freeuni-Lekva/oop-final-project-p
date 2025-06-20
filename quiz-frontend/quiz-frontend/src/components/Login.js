@@ -14,13 +14,16 @@ const Login = () => {
             const response = await axios.post('http://localhost:8080/api/auth/login', {
                 username,
                 password
+            }, {
+                withCredentials: true
             });
+
             if (response.status === 200) {
                 localStorage.setItem('user', JSON.stringify({ username }));
                 navigate('/home');
             }
         } catch (err) {
-            setError(err.response?.data || 'Account does not exist');
+            setError(err.response?.data || 'Invalid username or password');
         }
     };
 
