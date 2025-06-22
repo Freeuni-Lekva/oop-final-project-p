@@ -1,8 +1,11 @@
 package com.quizapp.controller;
 
 import com.quizapp.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,25 +24,35 @@ public class AuthRestController {
     private final AuthenticationManager authenticationManager;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials, HttpServletRequest request) {
         String username = credentials.get("username");
         String password = credentials.get("password");
 
         try {
             Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password)
+                    new UsernamePasswordAuthenticationToken(username, password)
             );
-            
+
+            // Set auth in SecurityContext
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            
+
+            // 🔥 Persist SecurityContext in session
+            request.getSession(true).setAttribute(
+                    HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                    SecurityContextHolder.getContext()
+            );
+
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Login successful");
             response.put("username", username);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Invalid username or password");
+            return ResponseEntity.status(HttpServletResponse.SC_UNAUTHORIZED)
+                    .body("Invalid username or password");
         }
     }
+
+
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> credentials) {

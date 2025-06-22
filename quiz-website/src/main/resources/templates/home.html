@@ -8,5 +8,12 @@
 <body>
 <h2>Welcome to Quiz Website!</h2>
 <p>Logged in successfully.</p>
+<div th:if="${username}">
+    <p>Welcome, <span th:text="${username}">User</span>!</p>
+</div>
+<div th:unless="${username}">
+    <p>Welcome, Guest!</p>
+</div>
+<a href="/logout">Logout</a>
 </body>
 </html>
