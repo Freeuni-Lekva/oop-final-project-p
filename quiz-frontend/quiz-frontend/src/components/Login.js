@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,24 +8,33 @@ const Login = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
+    useEffect(() => {
+        document.title = "Login";
+    }, []);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8080/api/auth/login', {
+            const response = await axios.post('http://localhost:8081/api/auth/login', {
                 username,
                 password
+            }, {
+                withCredentials: true
             });
+
             if (response.status === 200) {
                 localStorage.setItem('user', JSON.stringify({ username }));
                 navigate('/home');
             }
         } catch (err) {
-            setError(err.response?.data || 'Account does not exist');
+            setError(err.response?.data || 'Invalid username or password');
         }
     };
 
     return (
         <div className="auth-container">
+            <img src={`${process.env.PUBLIC_URL}/AppLogo.png`} alt="Logo" width="120"/>
+
             <h2>Sign In</h2>
             <form onSubmit={handleSubmit} className="auth-form">
                 {error && <div className="auth-error">{error}</div>}
