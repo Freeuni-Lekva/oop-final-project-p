@@ -38,7 +38,7 @@
 }
 
 body {
-  background: #f6f8fa;
+  background: #653d8e;
   font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
   margin: 0;
   padding: 0;
@@ -47,7 +47,7 @@ body {
 .auth-container {
   max-width: 400px;
   margin: 60px auto;
-  background: #fff;
+  background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
   padding: 32px 28px 24px 28px;
@@ -76,7 +76,7 @@ body {
 .auth-form input:focus {
   border: 1.5px solid #6366f1;
   outline: none;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.8);
 }
 
 .auth-form button {
@@ -133,4 +133,107 @@ p {
   color: #6b7280;
   font-size: 1em;
   margin-top: 10px;
+}
+
+.admin-dashboard {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.admin-dashboard h2 {
+  text-align: center;
+  color: #4f46e5;
+  margin-bottom: 20px;
+}
+
+.admin-dashboard table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.admin-dashboard th,
+.admin-dashboard td {
+  border: 1px solid #e5e7eb;
+  padding: 10px;
+  text-align: left;
+}
+
+.admin-dashboard th {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.admin-dashboard td {
+  color: #1f2937;
+}
+
+.admin-dashboard button {
+  padding: 6px 10px;
+  background-color: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 8px;
+  font-size: 0.9rem;
+}
+
+.admin-dashboard button:hover {
+  background-color: #4f46e5;
+}
+
+
+
+.main-box {
+  background: #ffffff;
+  color: #22223b;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+}
+
+.announcement-box {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 300px;
+  background: #ffffff;
+  color: #1f2937;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.announcement-box h3 {
+  margin-top: 0;
+  color: #4f46e5;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.announcement-box ul {
+  list-style-type: disc;
+  padding-left: 18px;
+  margin: 0;
+}
+
+.announcement-box li {
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.announcement-box small {
+  display: block;
+  color: #6b7280;
+  font-size: 0.8rem;
 }

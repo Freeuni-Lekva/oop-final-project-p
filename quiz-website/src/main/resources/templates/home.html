@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<h2>Welcome to Quiz Website!</h2>
+<p>Logged in successfully.</p>
+<div th:if="${username}">
+    <p>Welcome, <span th:text="${username}">User</span>!</p>
+</div>
+<div th:unless="${username}">
+    <p>Welcome, Guest!</p>
+</div>
+<a href="/logout">Logout</a>
+</body>
+</html>
