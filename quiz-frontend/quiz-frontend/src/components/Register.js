@@ -13,24 +13,18 @@ const Register = () => {
     }, []);
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
         try {
-            // Create form data to match Spring Security's form login
-            const formData = new FormData();
-            formData.append('username', username);
-            formData.append('password', password);
-
-            const response = await axios.post('http://localhost:8081/auth/signup', formData, {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                withCredentials: true // Important for session cookies
+            const response = await axios.post('/api/auth/register', {
+                username,
+                password
             });
 
             if (response.status === 200) {
                 navigate('/login');
             }
         } catch (err) {
-            setError(err.response?.data || 'An error occurred during registration');
+            setError(err.response?.data?.message || err.response?.data || 'An error occurred during registration');
         }
     };
 

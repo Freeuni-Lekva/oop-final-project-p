@@ -1,11 +1,12 @@
 package com.quizapp.config;
 
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,7 +42,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // React
+        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
@@ -52,22 +53,26 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Order(1)
+    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
+                .securityMatcher("/api/**")
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/auth/**",
-                                "/api/auth/**",
-                                "/api/announcements",        // ✅ allow public access
-                                "/css/**",
-                                "/js/**",
-                                "/images/**",
-                                "/"
-                        ).permitAll()
-                        .requestMatchers("/api/admin/**", "/admin/**").hasRole("ADMIN")  // ✅ admin access
-                        .requestMatchers("/api/home").authenticated()
+                        .requestMatchers("/api/auth/**", "/api/announcements").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated()
+                );
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
+    public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/home", "/login", "/register", "/css/**", "/js/**", "/error").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -79,22 +84,9 @@ public class SecurityConfig {
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/auth/login?logout=true")
-                        .invalidateHttpSession(true)
-                        .clearAuthentication(true)
+                        .logoutSuccessHandler((request, response, authentication) -> response.setStatus(200))
                         .permitAll()
-                )
-                .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            // Return 401 for API calls
-                            if (request.getRequestURI().startsWith("/api/")) {
-                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
-                            } else {
-                                response.sendRedirect("/auth/login");
-                            }
-                        })
                 );
-
         return http.build();
     }
 }

@@ -1,9 +1,13 @@
 package com.quizapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")  // ✅ Use plural or something else
@@ -23,4 +27,17 @@ public class User {
 
     @Column(nullable = false)
     private String role = "ROLE_USER";
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "friendships",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "friend_id")
+    )
+    @JsonIgnore
+    private Set<User> friends = new HashSet<>();
+
+    // --- Helper methods for new friend request system ---
+    // These are not mapped fields, just convenience methods for the service layer
+    // Actual friend request data is managed in FriendRequestRepository
 }

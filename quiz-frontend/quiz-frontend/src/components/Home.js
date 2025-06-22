@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import FriendsModal from './FriendsModal';
+import './Friends.css';
 
 const Home = () => {
     const [message, setMessage] = useState('');
     const [username, setUsername] = useState('');
     const [error, setError] = useState('');
     const [announcements, setAnnouncements] = useState([]);
+    const [isFriendsModalOpen, setFriendsModalOpen] = useState(false);
 
     useEffect(() => {
         document.title = "Home";
@@ -55,6 +58,17 @@ const Home = () => {
                     </ul>
                 )}
             </div>
+
+            {/* Floating Friends Icon Button */}
+            <button onClick={() => setFriendsModalOpen(true)} className="friends-icon-button">
+                👥
+            </button>
+
+            {/* Friends Modal */}
+            <FriendsModal
+                isOpen={isFriendsModalOpen}
+                onClose={() => setFriendsModalOpen(false)}
+            />
         </div>
     );
 };
