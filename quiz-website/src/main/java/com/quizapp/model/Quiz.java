@@ -21,7 +21,6 @@ public class Quiz {
         this.title = title;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }

@@ -4,5 +4,8 @@
     <mapping uuid="7d7b7ed4-cbc9-45ba-a8c2-c4f1b83fc84d" name="testdb Mapping">
       <data-sources db="22d597b0-7098-425e-95e0-aa3bf3a8d78f" />
     </mapping>
+    <mapping uuid="7d7b7ed4-cbc9-45ba-a8c2-c4f1b83fc84d" name="testdb Mapping">
+      <data-sources db="22d597b0-7098-425e-95e0-aa3bf3a8d78f" />
+    </mapping>
   </component>
 </project>

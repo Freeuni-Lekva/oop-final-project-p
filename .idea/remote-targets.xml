@@ -2,13 +2,13 @@
 <project version="4">
   <component name="RemoteTargetsManager">
     <targets>
-      <target name="WSL" type="wsl" uuid="c4063278-dba7-4e18-ab2e-5d27e98514f4">
+      <target name="WSL" type="wsl" uuid="bbb2a4d5-f04d-4318-80ec-a7f7b67e4a73">
         <config>
           <option name="distributionMsId" value="Ubuntu" />
         </config>
         <ContributedStateBase type="JavaLanguageRuntime">
           <config>
-            <option name="homePath" value="/usr/lib/jvm/java-1.17.0-openjdk-amd64" />
+            <option name="homePath" value="/home/electrolizzys/.jdks/ms-21.0.7" />
           </config>
         </ContributedStateBase>
         <ContributedStateBase type="MavenRuntime">

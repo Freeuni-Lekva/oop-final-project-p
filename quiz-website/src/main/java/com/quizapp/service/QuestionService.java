@@ -19,39 +19,32 @@ public class QuestionService {
         this.questionRepository = questionRepository;
     }
 
-    // Get all questions (possibly filter by quizId later)
     public List<Question> getAllQuestions() {
         return questionRepository.findAll();
     }
 
-    // Get a question by ID
     public Optional<Question> getQuestionById(Long id) {
         return questionRepository.findById(id);
     }
 
-    // Create a new question
     @Transactional
     public Question createQuestion(Question question) {
-        // Add validation logic here, e.g., ensure associated quiz exists
         return questionRepository.save(question);
     }
 
-    // Update a question
     @Transactional
     public Optional<Question> updateQuestion(Long id, Question updatedQuestionData) {
         return questionRepository.findById(id).map(question -> {
-            question.setQuestionText(updatedQuestionData.getQuestionText()); // Assuming 'questionText' field
+            question.setQuestionText(updatedQuestionData.getQuestionText());
             // Update other properties like answers, type, etc.
             return questionRepository.save(question);
         });
     }
 
-    // Delete a question
     @Transactional
     public void deleteQuestion(Long id) {
         questionRepository.deleteById(id);
     }
 
-    // You might add methods like:
     // List<Question> getQuestionsByQuizId(Long quizId);
 }
