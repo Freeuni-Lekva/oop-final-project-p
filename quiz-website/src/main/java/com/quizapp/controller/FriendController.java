@@ -64,4 +64,25 @@ public class FriendController {
             return ResponseEntity.status(500).build();
         }
     }
+
+    @PostMapping("/reject/{requestId}")
+    public ResponseEntity<?> rejectFriendRequest(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long requestId) {
+        String result = friendService.rejectFriendRequest(requestId, userDetails.getUsername());
+        if (result.equals("Friend request rejected.")) {
+            return ResponseEntity.ok(Map.of("message", result));
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("error", result));
+        }
+    }
+
+    @PostMapping("/remove")
+    public ResponseEntity<?> removeFriend(@AuthenticationPrincipal UserDetails userDetails, @RequestBody Map<String, String> payload) {
+        String friendUsername = payload.get("username");
+        String result = friendService.removeFriend(userDetails.getUsername(), friendUsername);
+        if (result.equals("Friend removed successfully.")) {
+            return ResponseEntity.ok(Map.of("message", result));
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("error", result));
+        }
+    }
 } 

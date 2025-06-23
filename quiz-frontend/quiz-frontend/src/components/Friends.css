@@ -118,4 +118,19 @@
     position: absolute;
     top: 5px;
     right: 5px;
+}
+
+.request-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 8px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.request-username {
+    flex: 0 0 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 } 

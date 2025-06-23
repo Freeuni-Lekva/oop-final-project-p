@@ -125,4 +125,41 @@ public class FriendService {
                 .map(User::getUsername)
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public String rejectFriendRequest(Long requestId, String addresseeUsername) {
+        FriendRequest request = friendRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Friend request not found."));
+        if (!request.getAddressee().getUsername().equals(addresseeUsername)) {
+            return "You are not authorized to reject this request.";
+        }
+        if (request.getStatus() != FriendRequest.Status.PENDING) {
+            return "Cannot reject a request that is not pending.";
+        }
+        friendRequestRepository.delete(request);
+        return "Friend request rejected.";
+    }
+
+    @Transactional
+    public String removeFriend(String username, String friendUsername) {
+        if (username.equals(friendUsername)) {
+            return "You cannot remove yourself.";
+        }
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        User friend = userRepository.findByUsername(friendUsername)
+                .orElseThrow(() -> new RuntimeException("User not found: " + friendUsername));
+        // Find accepted friendship in either direction
+        Optional<FriendRequest> friendship = friendRequestRepository.findByRequesterAndAddressee(user, friend)
+                .filter(fr -> fr.getStatus() == FriendRequest.Status.ACCEPTED);
+        if (friendship.isEmpty()) {
+            friendship = friendRequestRepository.findByRequesterAndAddressee(friend, user)
+                    .filter(fr -> fr.getStatus() == FriendRequest.Status.ACCEPTED);
+        }
+        if (friendship.isEmpty()) {
+            return "User is not in your friend list.";
+        }
+        friendRequestRepository.delete(friendship.get());
+        return "Friend removed successfully.";
+    }
 } 

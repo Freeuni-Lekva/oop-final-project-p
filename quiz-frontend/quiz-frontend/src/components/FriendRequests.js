@@ -28,6 +28,17 @@ const FriendRequests = ({ onRequestsCountChange }) => {
         }
     };
 
+    const handleReject = async (requestId) => {
+        setMessage('');
+        try {
+            await axios.post(`/api/friends/reject/${requestId}`, {}, { withCredentials: true });
+            setMessage('Friend request rejected.');
+            fetchRequests(); // Refresh list
+        } catch (err) {
+            setMessage('Failed to reject request.');
+        }
+    };
+
     return (
         <div className="friend-requests-container">
             {message && <p>{message}</p>}
@@ -35,9 +46,12 @@ const FriendRequests = ({ onRequestsCountChange }) => {
                 <ul className="friend-requests-list">
                     {requests.map((request) => (
                         <li key={request.id} className="request-item">
-                            <span>{request.requesterUsername}</span>
+                            <span className="request-username">{request.requesterUsername}</span>
                             <button onClick={() => handleAccept(request.id)} className="accept-request-button">
                                 Accept
+                            </button>
+                            <button onClick={() => handleReject(request.id)} className="accept-request-button" style={{backgroundColor: '#f44336', marginLeft: '8px'}}>
+                                Reject
                             </button>
                         </li>
                     ))}

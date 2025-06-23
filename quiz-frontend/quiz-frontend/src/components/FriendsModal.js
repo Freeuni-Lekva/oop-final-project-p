@@ -3,9 +3,10 @@ import './Friends.css'; // Import our new styles
 import FriendList from './FriendList';
 import FriendRequests from './FriendRequests';
 import UserSearch from './UserSearch';
+import RemoveFriend from './RemoveFriend';
 
 const FriendsModal = ({ isOpen, onClose }) => {
-    const [activeTab, setActiveTab] = useState('list'); // 'list', 'requests', 'add'
+    const [activeTab, setActiveTab] = useState('list'); // 'list', 'requests', 'add', 'remove'
     const [requestsCount, setRequestsCount] = useState(0);
 
     if (!isOpen) {
@@ -41,11 +42,18 @@ const FriendsModal = ({ isOpen, onClose }) => {
                     >
                         Add Friend
                     </button>
+                    <button
+                        className={`friends-modal-tab ${activeTab === 'remove' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('remove')}
+                    >
+                        Remove Friend
+                    </button>
                 </div>
                 <div className="friends-modal-body">
                     {activeTab === 'list' && <FriendList />}
                     {activeTab === 'requests' && <FriendRequests onRequestsCountChange={handleRequestsCountChange} />}
                     {activeTab === 'add' && <UserSearch />}
+                    {activeTab === 'remove' && <RemoveFriend />}
                 </div>
             </div>
         </div>
