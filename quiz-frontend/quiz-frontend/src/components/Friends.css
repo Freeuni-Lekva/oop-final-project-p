@@ -140,4 +140,80 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.top-left-signout {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    z-index: 1100;
+}
+
+.signout-icon-button {
+    background-color: #e11d48;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    font-size: 22px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.2s, background 0.2s;
+    outline: none;
+}
+
+.signout-icon-button:hover {
+    background-color: #b91c1c;
+    transform: scale(1.08);
+}
+
+.signout-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1200;
+}
+
+.signout-modal-content {
+    background: #fff;
+    padding: 28px 32px 20px 32px;
+    border-radius: 12px;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.22);
+    min-width: 260px;
+    text-align: center;
+}
+
+.cancel-signout-button, .confirm-signout-button {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.cancel-signout-button {
+    background: #e5e7eb;
+    color: #22223b;
+}
+
+.cancel-signout-button:hover {
+    background: #cbd5e1;
+}
+
+.confirm-signout-button {
+    background: #e11d48;
+    color: #fff;
+}
+
+.confirm-signout-button:hover {
+    background: #b91c1c;
 } 
