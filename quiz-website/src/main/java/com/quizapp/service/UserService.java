@@ -38,4 +38,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
     }
 
+    public boolean userExists(String username) {
+        return userRepository.findByUsername(username).isPresent();
+    }
 }
