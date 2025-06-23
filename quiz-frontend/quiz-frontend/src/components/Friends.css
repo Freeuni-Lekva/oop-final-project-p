@@ -1,27 +1,34 @@
 /* Friends.css */
 
-.friends-icon-button {
+.top-right-icons {
     position: fixed;
-    bottom: 90px; /* Moved up */
-    right: 20px;
-    background-color: #6a1b9a; /* A deep purple */
+    top: 24px;
+    right: 24px;
+    display: flex;
+    gap: 16px;
+    z-index: 1100;
+}
+
+.friends-icon-button, .messages-icon-button {
+    background-color: #6a1b9a;
     color: white;
     border: none;
     border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    font-size: 28px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    width: 56px;
+    height: 56px;
+    font-size: 26px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: transform 0.2s ease-in-out;
-    z-index: 1000;
+    transition: transform 0.2s ease-in-out, background 0.2s;
+    outline: none;
 }
 
-.friends-icon-button:hover {
-    transform: scale(1.1);
+.friends-icon-button:hover, .messages-icon-button:hover {
+    transform: scale(1.08);
+    background-color: #512e7e;
 }
 
 .friends-modal-overlay {

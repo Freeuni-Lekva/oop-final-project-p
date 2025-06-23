@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import FriendsModal from './FriendsModal';
+import MessagesModal from './MessagesModal';
 import './Friends.css';
 
 const Home = () => {
@@ -8,6 +9,7 @@ const Home = () => {
     const [error, setError] = useState('');
     const [announcements, setAnnouncements] = useState([]);
     const [isFriendsModalOpen, setFriendsModalOpen] = useState(false);
+    const [isMessagesModalOpen, setMessagesModalOpen] = useState(false);
 
     useEffect(() => {
         document.title = "Home";
@@ -59,15 +61,25 @@ const Home = () => {
                 )}
             </div>
 
-            {/* Floating Friends Icon Button */}
-            <button onClick={() => setFriendsModalOpen(true)} className="friends-icon-button">
-                👥
-            </button>
+            {/* Top-right floating icons */}
+            <div className="top-right-icons">
+                <button onClick={() => setMessagesModalOpen(true)} className="messages-icon-button" title="Messages">
+                    💬
+                </button>
+                <button onClick={() => setFriendsModalOpen(true)} className="friends-icon-button" title="Friends">
+                    👥
+                </button>
+            </div>
 
             {/* Friends Modal */}
             <FriendsModal
                 isOpen={isFriendsModalOpen}
                 onClose={() => setFriendsModalOpen(false)}
+            />
+            {/* Messages Modal */}
+            <MessagesModal
+                isOpen={isMessagesModalOpen}
+                onClose={() => setMessagesModalOpen(false)}
             />
         </div>
     );
