@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import FriendsModal from './FriendsModal';
 import './Friends.css';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
     const [message, setMessage] = useState('');
@@ -8,6 +9,7 @@ const Home = () => {
     const [error, setError] = useState('');
     const [announcements, setAnnouncements] = useState([]);
     const [isFriendsModalOpen, setFriendsModalOpen] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         document.title = "Home";
@@ -58,6 +60,8 @@ const Home = () => {
                     </ul>
                 )}
             </div>
+
+            <button onClick={() => navigate('/quizzes')} style={{marginTop: '20px'}}>Browse Quizzes</button>
 
             {/* Floating Friends Icon Button */}
             <button onClick={() => setFriendsModalOpen(true)} className="friends-icon-button">
