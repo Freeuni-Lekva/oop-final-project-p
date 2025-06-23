@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,15 +8,26 @@ const Register = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
+    useEffect(() => {
+        document.title = "Register";
+    }, []);
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8080/api/auth/register', {
-                username,
-                password
+            // Create form data to match Spring Security's form login
+            const formData = new FormData();
+            formData.append('username', username);
+            formData.append('password', password);
+
+            const response = await axios.post('http://localhost:8081/auth/signup', formData, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                withCredentials: true // Important for session cookies
             });
+
             if (response.status === 200) {
-                navigate('/home');
+                navigate('/login');
             }
         } catch (err) {
             setError(err.response?.data || 'An error occurred during registration');
@@ -25,6 +36,7 @@ const Register = () => {
 
     return (
         <div className="auth-container">
+            <img src={`${process.env.PUBLIC_URL}/AppLogo.png`} alt="Logo" width="120"/>
             <h2>Create Account</h2>
             <form onSubmit={handleSubmit} className="auth-form">
                 {error && <div className="auth-error">{error}</div>}
