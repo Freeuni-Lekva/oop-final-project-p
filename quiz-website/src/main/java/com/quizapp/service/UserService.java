@@ -32,4 +32,10 @@ public class UserService {
         return userOpt.isPresent() &&
                 passwordEncoder.matches(rawPassword, userOpt.get().getPasswordHash());
     }
+
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+    }
+
 }

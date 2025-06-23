@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
     const [message, setMessage] = useState('');
     const [username, setUsername] = useState('');
     const [error, setError] = useState('');
     const [announcements, setAnnouncements] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         document.title = "Home";
@@ -34,12 +36,17 @@ const Home = () => {
         <div className="auth-container">
             {error && <div className="auth-error">{error}</div>}
             <div className="main-box">
-                <h2>{message || 'Welcome!'}</h2>
+                <h1>{message || 'Welcome!'}</h1>
                 {username && <p>Hello, <b>{username}</b>!</p>}
+                {username && (
+                    <button onClick={() => navigate('/create-quiz')} style={{ marginTop: '16px' }}>
+                        Create a New Quiz
+                    </button>
+                )}
             </div>
 
             <div className="announcement-box">
-                <h3>📣 Announcements</h3>
+                <h2>📣 Announcements</h2>
                 {announcements.length === 0 ? (
                     <p>No announcements available.</p>
                 ) : (
