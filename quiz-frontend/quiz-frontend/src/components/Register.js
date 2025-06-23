@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,23 +8,29 @@ const Register = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
+    useEffect(() => {
+        document.title = "Register";
+    }, []);
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
         try {
-            const response = await axios.post('http://localhost:8080/api/auth/register', {
+            const response = await axios.post('/api/auth/register', {
                 username,
                 password
             });
+
             if (response.status === 200) {
-                navigate('/home');
+                navigate('/login');
             }
         } catch (err) {
-            setError(err.response?.data || 'An error occurred during registration');
+            setError(err.response?.data?.message || err.response?.data || 'An error occurred during registration');
         }
     };
 
     return (
         <div className="auth-container">
+            <img src={`${process.env.PUBLIC_URL}/AppLogo.png`} alt="Logo" width="120"/>
             <h2>Create Account</h2>
             <form onSubmit={handleSubmit} className="auth-form">
                 {error && <div className="auth-error">{error}</div>}
