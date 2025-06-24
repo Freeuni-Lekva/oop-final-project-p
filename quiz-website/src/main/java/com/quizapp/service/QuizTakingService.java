@@ -14,44 +14,40 @@ public class QuizTakingService {
 
     private final QuizRepository quizRepository;
     private final QuizAttemptRepository quizAttemptRepository;
-    private final AnswerRepository answerRepository;
     private final QuestionRepository questionRepository;
+    private final AnswerRepository answerRepository;
 
     @Autowired
     public QuizTakingService(QuizRepository quizRepository,
                              QuizAttemptRepository quizAttemptRepository,
-                             AnswerRepository answerRepository,
-                             QuestionRepository questionRepository) {
+                             QuestionRepository questionRepository,
+                             AnswerRepository answerRepository) {
         this.quizRepository = quizRepository;
         this.quizAttemptRepository = quizAttemptRepository;
-        this.answerRepository = answerRepository;
         this.questionRepository = questionRepository;
+        this.answerRepository = answerRepository;
     }
 
-
-    // new Attempt
+    // Start a new attempt
     @Transactional
     public QuizAttempt startQuiz(Long quizId, User user, boolean isPracticeMode) {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new RuntimeException("Quiz not found"));
 
-        // Check if incomplete attempt for this quiz
+        // Check for incomplete attempt
         List<QuizAttempt> incompleteAttempts = quizAttemptRepository.findByUserIdAndIsCompletedFalse(user.getId());
         for (QuizAttempt attempt : incompleteAttempts) {
             if (attempt.getQuiz().getId().equals(quizId)) {
-                return attempt; // incomplete attempt
+                return attempt;
             }
         }
 
-        // new attempt
         QuizAttempt attempt = new QuizAttempt(user, quiz);
         attempt.setIsPracticeMode(isPracticeMode);
-
         return quizAttemptRepository.save(attempt);
     }
 
-
-    // submit
+    // Submit answers and grade
     @Transactional
     public QuizAttempt submitQuiz(Long attemptId, Map<Long, String> questionAnswers) {
         QuizAttempt attempt = quizAttemptRepository.findById(attemptId)
@@ -61,55 +57,41 @@ public class QuizTakingService {
             throw new RuntimeException("Quiz attempt already completed");
         }
 
-        // Save all answers
-        List<Answer> answers = new ArrayList<>();
-        for (Map.Entry<Long, String> entry : questionAnswers.entrySet()) {
-            Long questionId = entry.getKey();
-            String userAnswer = entry.getValue();
-
-            Question question = questionRepository.findById(questionId)
-                    .orElseThrow(() -> new RuntimeException("Question not found"));
-
-            Answer answer = new Answer(question, userAnswer, attempt.getUser(), attempt,
-                    question.getQuestionOrder());
-            answers.add(answer);
+        // Remove previous answers for this attempt (if any)
+        List<Answer> oldAnswers = answerRepository.findByQuizAttemptIdOrderByQuestionNumber(attemptId);
+        if (!oldAnswers.isEmpty()) {
+            answerRepository.deleteAll(oldAnswers);
         }
 
+        // Save new answers and grade
+        int correctCount = 0;
+        Quiz quiz = attempt.getQuiz();
+        List<Question> questions = quiz.getQuestions();
+        List<Answer> answers = new ArrayList<>();
+        for (Question q : questions) {
+            String userAnswer = questionAnswers.get(q.getId());
+            boolean isCorrect = userAnswer != null && q.isAnswerCorrect(userAnswer);
+            if (isCorrect) correctCount++;
+            Answer answer = new Answer(
+                attempt.getUser(),
+                attempt,
+                q,
+                userAnswer,
+                isCorrect,
+                q.getQuestionOrder()
+            );
+            answers.add(answer);
+        }
         answerRepository.saveAll(answers);
-
-        // Grade the quiz
-        int score = gradeQuiz(answers);
-        attempt.completeAttempt(score);
-
+        attempt.completeAttempt(correctCount);
         return quizAttemptRepository.save(attempt);
     }
 
-
-    //check All Answers
-    private int gradeQuiz(List<Answer> answers) {
-        int correctCount = 0;
-
-        for (Answer answer : answers) {
-            Question question = answer.getQuestion();
-            boolean isCorrect = question.isAnswerCorrect(answer.getSelectedAnswer());
-            answer.setIsCorrect(isCorrect);
-
-            if (isCorrect) {
-                correctCount++;
-            }
-        }
-
-        return correctCount;
-    }
-
-
-    // Get Results
+    // Get results
     public Map<String, Object> getQuizResults(Long attemptId) {
         QuizAttempt attempt = quizAttemptRepository.findById(attemptId)
                 .orElseThrow(() -> new RuntimeException("Quiz attempt not found"));
-
         List<Answer> answers = answerRepository.findByQuizAttemptIdOrderByQuestionNumber(attemptId);
-
         Map<String, Object> results = new HashMap<>();
         results.put("attempt", attempt);
         results.put("answers", answers);
@@ -117,30 +99,26 @@ public class QuizTakingService {
         results.put("totalQuestions", attempt.getTotalQuestions());
         results.put("percentage", attempt.getPercentage());
         results.put("timeTaken", attempt.getTimeTakenMinutes());
-
         return results;
     }
+
     public List<QuizAttempt> getTopScores(Long quizId, int limit) {
         List<QuizAttempt> topScores = quizAttemptRepository.findTopScoresByQuizId(quizId);
         return topScores.stream().limit(limit).collect(Collectors.toList());
     }
 
-
     public List<QuizAttempt> getUserQuizHistory(Long userId, Long quizId) {
         return quizAttemptRepository.findByUserIdAndQuizIdOrderByStartTimeDesc(userId, quizId);
     }
-
 
     public List<QuizAttempt> getUserHistory(Long userId) {
         return quizAttemptRepository.findByUserIdOrderByStartTimeDesc(userId);
     }
 
-
     public List<QuizAttempt> getRecentAttempts(Long quizId, int limit) {
         List<QuizAttempt> recentAttempts = quizAttemptRepository.findRecentAttemptsByQuizId(quizId);
         return recentAttempts.stream().limit(limit).collect(Collectors.toList());
     }
-
 
     public Map<String, Object> getQuizStatistics(Long quizId) {
         List<QuizAttempt> allAttempts = quizAttemptRepository.findByQuizIdOrderByScoreDescTimeTakenMinutesAsc(quizId);
@@ -159,7 +137,7 @@ public class QuizTakingService {
         }
 
         double averageScore = completedAttempts.stream()
-                .mapToDouble(attempt -> attempt.getPercentage())
+                .mapToDouble(QuizAttempt::getPercentage)
                 .average()
                 .orElse(0.0);
 
@@ -169,7 +147,7 @@ public class QuizTakingService {
                 .orElse(0.0);
 
         int highestScore = completedAttempts.stream()
-                .mapToInt(attempt -> attempt.getScore())
+                .mapToInt(QuizAttempt::getScore)
                 .max()
                 .orElse(0);
 
@@ -180,7 +158,6 @@ public class QuizTakingService {
                 "highestScore", highestScore
         );
     }
-
 
     public QuizAttempt resumeQuiz(Long attemptId) {
         QuizAttempt attempt = quizAttemptRepository.findById(attemptId)
@@ -193,19 +170,23 @@ public class QuizTakingService {
         return attempt;
     }
 
-
     public List<Question> getQuizQuestions(Long quizId, boolean randomize) {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new RuntimeException("Quiz not found"));
-
-        List<Question> questions = new ArrayList<>(quiz.getQuestions());
-
+        List<Question> questions = quiz.getQuestions();
         if (randomize) {
-            Collections.shuffle(questions);
-        } else {
-            questions.sort(Comparator.comparing(Question::getQuestionOrder, Comparator.nullsLast(Comparator.naturalOrder())));
+            List<Question> shuffled = new ArrayList<>(questions);
+            Collections.shuffle(shuffled);
+            return shuffled;
         }
-
         return questions;
+    }
+
+    public boolean checkSingleAnswer(Long attemptId, Long questionId, String userAnswer) {
+        QuizAttempt attempt = quizAttemptRepository.findById(attemptId)
+            .orElseThrow(() -> new RuntimeException("Quiz attempt not found"));
+        Question question = questionRepository.findById(questionId)
+            .orElseThrow(() -> new RuntimeException("Question not found"));
+        return question.isAnswerCorrect(userAnswer);
     }
 }

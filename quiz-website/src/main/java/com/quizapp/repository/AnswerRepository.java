@@ -24,10 +24,4 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
     List<Answer> findByQuizAttemptIdAndIsCorrectTrue(Long quizAttemptId);
 
     // Find answers by user and quiz
-    @Query("SELECT a FROM Answer a WHERE a.user.id = :userId AND a.quizAttempt.quiz.id = :quizId ORDER BY a.quizAttempt.startTime DESC, a.questionNumber ASC")
-    List<Answer> findByUserIdAndQuizId(@Param("userId") Long userId, @Param("quizId") Long quizId);
-
-    // Count correct answers for an attempt
-    @Query("SELECT COUNT(a) FROM Answer a WHERE a.quizAttempt.id = :quizAttemptId AND a.isCorrect = true")
-    Long countCorrectAnswersByQuizAttemptId(@Param("quizAttemptId") Long quizAttemptId);
 }

@@ -1,55 +1,131 @@
 package com.quizapp.controller;
 
 import com.quizapp.model.Quiz;
-import com.quizapp.repository.QuizRepository;
+import com.quizapp.model.User;
 import com.quizapp.service.QuizService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.quizapp.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/quizzes")
+@RequiredArgsConstructor
 public class QuizController {
-    private final QuizService quizService;
 
-    @Autowired
-    public QuizController(QuizService quizService) {
-        this.quizService = quizService;
+    private final QuizService quizService;
+    private final UserService userService;
+
+    @PostMapping
+    public Quiz createQuiz(@RequestBody Quiz quiz, @AuthenticationPrincipal UserDetails userDetails) {
+        if (quiz.getQuestions() == null || quiz.getQuestions().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quiz must have at least one question");
+        }
+        if (quiz.getTitle() == null || quiz.getTitle().trim().isEmpty() || quiz.getDescription() == null || quiz.getDescription().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title and description are required");
+        }
+        User creator = userService.findByUsername(userDetails.getUsername());
+        quiz.setCreatedBy(creator);
+        quiz.getQuestions().forEach(q -> q.setQuiz(quiz));
+        return quizService.createQuiz(quiz);
+    }
+
+    @GetMapping("/{id}")
+    public QuizDto getQuiz(@PathVariable Long id) {
+        Quiz quiz = quizService.findById(id);
+        return new QuizDto(quiz);
     }
 
     @GetMapping
-    public ResponseEntity<List<Quiz>> getAllQuizzes() {
-        List<Quiz> quizzes = quizService.getAllQuizzes();
-        return new ResponseEntity<>(quizzes, HttpStatus.OK); // 200 OK with the list of quizzes
+    public List<QuizSummaryDto> getAllQuizzes() {
+        return quizService.getAllQuizzes().stream()
+            .map(quiz -> new QuizSummaryDto(
+                quiz.getId(),
+                quiz.getTitle(),
+                quiz.getDescription(),
+                quiz.getCreatedBy() != null ? quiz.getCreatedBy().getUsername() : null
+            ))
+            .toList();
     }
 
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Quiz> getQuizById(@PathVariable Long id) {
-        Optional<Quiz> quiz = quizService.getQuizById(id);
-        return quiz.map(value -> new ResponseEntity<>(value, HttpStatus.OK)) // 200 OK if found
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND)); //404 Not Found if not found
+    public static class QuizSummaryDto {
+        public Long id;
+        public String title;
+        public String description;
+        public String createdBy;
+        public QuizSummaryDto(Long id, String title, String description, String createdBy) {
+            this.id = id;
+            this.title = title;
+            this.description = description;
+            this.createdBy = createdBy;
+        }
     }
 
-    @PostMapping
-    public ResponseEntity<Quiz> createQuiz(@RequestBody Quiz quiz) {
-        Quiz createdQuiz = quizService.createQuiz(quiz);
-        return new ResponseEntity<>(createdQuiz, HttpStatus.CREATED); // 201 Created with the new quiz
+    public static class QuizDto {
+        public Long id;
+        public String title;
+        public String description;
+        public String createdBy;
+        public List<QuestionDto> questions;
+        public boolean randomizeQuestions;
+        public boolean singlePage;
+        public boolean immediateCorrection;
+        public boolean practiceMode;
+
+        public QuizDto(Quiz quiz) {
+            this.id = quiz.getId();
+            this.title = quiz.getTitle();
+            this.description = quiz.getDescription();
+            this.createdBy = quiz.getCreatedBy() != null ? quiz.getCreatedBy().getUsername() : null;
+            this.questions = quiz.getQuestions() != null ? 
+                quiz.getQuestions().stream().map(QuestionDto::new).collect(Collectors.toList()) : 
+                List.of();
+            this.randomizeQuestions = quiz.isRandomizeQuestions();
+            this.singlePage = quiz.isSinglePage();
+            this.immediateCorrection = quiz.isImmediateCorrection();
+            this.practiceMode = quiz.isPracticeMode();
+        }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Quiz> updateQuiz(@PathVariable Long id, @RequestBody Quiz quiz) {
-        Optional<Quiz> updatedQuiz = quizService.updateQuiz(id, quiz);
-        return updatedQuiz.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public static class QuestionDto {
+        public Long id;
+        public String questionText;
+        public String type;
+        public String imageUrl;
+        public Integer questionOrder;
+        public List<OptionDto> options;
+        public List<String> correctAnswers;
+        public Boolean orderMatters;
+
+        public QuestionDto(com.quizapp.model.Question question) {
+            this.id = question.getId();
+            this.questionText = question.getQuestionText();
+            this.type = question.getType() != null ? question.getType().name() : null;
+            this.imageUrl = question.getImageUrl();
+            this.questionOrder = question.getQuestionOrder();
+            this.options = question.getOptions() != null ? 
+                question.getOptions().stream().map(OptionDto::new).collect(Collectors.toList()) : 
+                List.of();
+            this.correctAnswers = question.getCorrectAnswers();
+            this.orderMatters = question.getOrderMatters();
+        }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteQuiz(@PathVariable Long id) {
-        quizService.deleteQuiz(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT); //204 No Content
+    public static class OptionDto {
+        public Long id;
+        public String text;
+        public boolean isCorrect;
+
+        public OptionDto(com.quizapp.model.Option option) {
+            this.id = option.getId();
+            this.text = option.getText();
+            this.isCorrect = option.getIsCorrect();
+        }
     }
 }

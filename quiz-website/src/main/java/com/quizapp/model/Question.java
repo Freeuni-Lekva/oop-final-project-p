@@ -1,175 +1,120 @@
 package com.quizapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "questions")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Question {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     private String questionText;
-    private String type; // question-response fill-in-blank multiple-choice picture-response
+
+    @Enumerated(EnumType.STRING)
+    private QuestionType type;
+
     private String imageUrl;
+
     private Integer questionOrder;
 
-    @ElementCollection
-    @CollectionTable(name = "question_choices", joinColumns = @JoinColumn(name = "question_id"))
-    @Column(name = "choice")
-    private List<String> choices; // for multi choice
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "question_id")
+    private List<Option> options;
 
     @ElementCollection
     @CollectionTable(name = "question_correct_answers", joinColumns = @JoinColumn(name = "question_id"))
     @Column(name = "correct_answer")
-    private List<String> correctAnswers; // multi correct answers
+    private List<String> correctAnswers;
 
-    private Boolean orderMatters; // Order based multi answrs
+    private Boolean orderMatters = false;
 
     @ManyToOne
     @JoinColumn(name = "quiz_id")
+    @JsonIgnore
     private Quiz quiz;
 
-    // Constructors
-    public Question() {}
+    public enum QuestionType {
+        QUESTION_RESPONSE, FILL_IN_THE_BLANK, MULTIPLE_CHOICE, PICTURE_RESPONSE
+    }
 
-    public Question(String questionText, String type, List<String> correctAnswers) {
+    public Question(String questionText, QuestionType type, List<Option> options, List<String> correctAnswers) {
         this.questionText = questionText;
         this.type = type;
-        this.correctAnswers = correctAnswers;
-        this.orderMatters = false;
-    }
-
-    public Question(String questionText, String type, List<String> choices, List<String> correctAnswers) {
-        this.questionText = questionText;
-        this.type = type;
-        this.choices = choices;
-        this.correctAnswers = correctAnswers;
-        this.orderMatters = false;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getQuestionText() {
-        return questionText;
-    }
-
-    public void setQuestionText(String questionText) {
-        this.questionText = questionText;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public Integer getQuestionOrder() {
-        return questionOrder;
-    }
-
-    public void setQuestionOrder(Integer questionOrder) {
-        this.questionOrder = questionOrder;
-    }
-
-    public List<String> getChoices() {
-        return choices;
-    }
-
-    public void setChoices(List<String> choices) {
-        this.choices = choices;
-    }
-
-    public List<String> getCorrectAnswers() {
-        return correctAnswers;
-    }
-
-    public void setCorrectAnswers(List<String> correctAnswers) {
+        this.options = options;
         this.correctAnswers = correctAnswers;
     }
 
-    public Boolean getOrderMatters() {
-        return orderMatters;
-    }
-
-    public void setOrderMatters(Boolean orderMatters) {
-        this.orderMatters = orderMatters;
-    }
-
-    public Quiz getQuiz() {
-        return quiz;
-    }
-
-    public void setQuiz(Quiz quiz) {
-        this.quiz = quiz;
-    }
-
-    // check if answer is correct
-    public boolean isAnswerCorrect(String userAnswer) {
-        if (correctAnswers == null || correctAnswers.isEmpty()) {
-            return false;
-        }
-
-        String normalizedUserAnswer = userAnswer.trim().toLowerCase();
-
-        for (String correctAnswer : correctAnswers) {
-            if (correctAnswer.trim().toLowerCase().equals(normalizedUserAnswer)) {
-                return true;
+    @PrePersist
+    @PreUpdate
+    private void validate() {
+        if (type == QuestionType.MULTIPLE_CHOICE) {
+            if (options == null || options.size() < 2) {
+                throw new IllegalStateException("Multiple-choice question must have at least two options");
+            }
+            long correctCount = options.stream().filter(Option::getIsCorrect).count();
+            if (correctCount != 1) {
+                throw new IllegalStateException("Multiple-choice question must have exactly one correct option");
+            }
+        } else {
+            if (correctAnswers == null || correctAnswers.isEmpty() || correctAnswers.stream().noneMatch(ans -> ans != null && !ans.trim().isEmpty())) {
+                throw new IllegalStateException("Non-multiple-choice question must have at least one valid correct answer");
             }
         }
-        return false;
+        if (type == QuestionType.PICTURE_RESPONSE && (imageUrl == null || !imageUrl.matches("^(http|https)://.*$"))) {
+            throw new IllegalStateException("Picture-response question must have a valid image URL");
+        }
+        if (type == QuestionType.FILL_IN_THE_BLANK && (questionText == null || !questionText.contains("____"))) {
+            throw new IllegalStateException("Fill-in-the-blank question must contain '____' in the question text");
+        }
     }
 
-    // Helper for multi-answer questions
+    public boolean isAnswerCorrect(String userAnswer) {
+        if (type == QuestionType.MULTIPLE_CHOICE) {
+            return options.stream()
+                    .filter(Option::getIsCorrect)
+                    .map(Option::getText)
+                    .anyMatch(ans -> ans.trim().toLowerCase().equals(userAnswer.trim().toLowerCase()));
+        }
+        if (correctAnswers == null || correctAnswers.isEmpty()) return false;
+        String normalized = userAnswer.trim().toLowerCase();
+        return correctAnswers.stream()
+                .map(ans -> ans.trim().toLowerCase())
+                .anyMatch(ans -> ans.equals(normalized));
+    }
+
     public boolean areAnswersCorrect(List<String> userAnswers) {
         if (correctAnswers == null || userAnswers == null) {
             return false;
         }
-
         if (userAnswers.size() != correctAnswers.size()) {
             return false;
         }
-
-        if (orderMatters) {
-            // Check answers in order
+        if (Boolean.TRUE.equals(orderMatters)) {
             for (int i = 0; i < userAnswers.size(); i++) {
-                if (!isAnswerCorrect(userAnswers.get(i))) {
+                String userAns = userAnswers.get(i) == null ? "" : userAnswers.get(i).trim().toLowerCase();
+                String correctAns = correctAnswers.get(i) == null ? "" : correctAnswers.get(i).trim().toLowerCase();
+                if (!userAns.equals(correctAns)) {
                     return false;
                 }
             }
+            return true;
         } else {
-            // Check if all correct answers are there
-            List<String> normalizedUserAnswers = userAnswers.stream()
-                    .map(answer -> answer.trim().toLowerCase())
-                    .toList();
-
-            List<String> normalizedCorrectAnswers = correctAnswers.stream()
-                    .map(answer -> answer.trim().toLowerCase())
-                    .toList();
-
-            return normalizedUserAnswers.containsAll(normalizedCorrectAnswers) &&
-                    normalizedCorrectAnswers.containsAll(normalizedUserAnswers);
+            List<String> normalizedUser = userAnswers.stream().map(a -> a == null ? "" : a.trim().toLowerCase()).collect(Collectors.toList());
+            List<String> normalizedCorrect = correctAnswers.stream().map(a -> a == null ? "" : a.trim().toLowerCase()).collect(Collectors.toList());
+            return normalizedUser.containsAll(normalizedCorrect) && normalizedCorrect.containsAll(normalizedUser);
         }
-
-        return true;
     }
 }

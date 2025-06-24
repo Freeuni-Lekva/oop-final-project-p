@@ -5,6 +5,7 @@ import com.quizapp.model.QuizAttempt;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class QuizResultDto {
     private Long attemptId;
@@ -36,11 +37,9 @@ public class QuizResultDto {
         this.startTime = attempt.getStartTime();
         this.endTime = attempt.getEndTime();
         this.isPracticeMode = attempt.getIsPracticeMode();
-
-        //answers to DTOs
         this.answers = answers.stream()
                 .map(AnswerResultDto::new)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public Long getAttemptId() {
@@ -147,7 +146,6 @@ public class QuizResultDto {
         this.answers = answers;
     }
 
-    // For single answer results
     public static class AnswerResultDto {
         private Long questionId;
         private String questionText;
@@ -160,8 +158,8 @@ public class QuizResultDto {
         public AnswerResultDto(Answer answer) {
             this.questionId = answer.getQuestion().getId();
             this.questionText = answer.getQuestion().getQuestionText();
-            this.questionType = answer.getQuestion().getType();
-            this.userAnswer = answer.getSelectedAnswer();
+            this.questionType = answer.getQuestion().getType().name();
+            this.userAnswer = answer.getUserAnswer();
             this.correctAnswers = answer.getQuestion().getCorrectAnswers();
             this.isCorrect = answer.getIsCorrect();
             this.questionNumber = answer.getQuestionNumber();

@@ -14,7 +14,6 @@ const Home = () => {
     useEffect(() => {
         document.title = "Home";
 
-        // Fetch user welcome info
         fetch('http://localhost:8081/api/home', {
             credentials: 'include',
         })
@@ -61,7 +60,8 @@ const Home = () => {
                 )}
             </div>
 
-            <button onClick={() => navigate('/quizzes')} style={{marginTop: '20px'}}>Browse Quizzes</button>
+            <button onClick={() => navigate('/quizzes')} style={{marginTop: '20px', marginRight: '10px'}}>Take a Quiz</button>
+            <button onClick={() => navigate('/create-quiz')} style={{marginTop: '20px'}}>Create a Quiz</button>
 
             {/* Floating Friends Icon Button */}
             <button onClick={() => setFriendsModalOpen(true)} className="friends-icon-button">

@@ -24,7 +24,7 @@ const QuizSummary = () => {
     <div className="quiz-summary-container auth-container">
       <h2>{quiz.title}</h2>
       <p>{quiz.description}</p>
-      <p>Created by: <b>{quiz.creator}</b></p>
+      <p>Created by: <b>{quiz.createdBy?.username || 'Unknown'}</b></p>
       {/* Add stats, top scorers, etc. if available */}
       <button onClick={() => navigate(`/quiz/${quiz.id}`)}>Start Quiz</button>
     </div>

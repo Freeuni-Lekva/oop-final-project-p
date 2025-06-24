@@ -1,9 +1,21 @@
 package com.quizapp.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Table(name = "quizzes")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Quiz {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -11,44 +23,29 @@ public class Quiz {
     private String title;
     private String description;
 
+    @ManyToOne
+    @JoinColumn(name = "created_by")
+    @JsonIgnore
+    private User createdBy;
+
+    private LocalDateTime createdAt;
+
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions;
 
-    // Constructors
-    public Quiz() {}
+    private boolean randomizeQuestions = false;
+    private boolean singlePage = true; // true for single-page, false for multiple-page
+    private boolean immediateCorrection = false;
+    private boolean practiceMode = false;
 
-    public Quiz(String title) {
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public Quiz(String title, String description, User createdBy) {
         this.title = title;
-    }
-
-    public Long getId() {
-        return id;
-    }
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public List<Question> getQuestions() {
-        return questions;
-    }
-
-    public void setQuestions(List<Question> questions) {
-        this.questions = questions;
-    }
-
-    public void setDescription(String description) {
         this.description = description;
+        this.createdBy = createdBy;
     }
-    public String getDescription() {
-        return description;
-    }
-
 }

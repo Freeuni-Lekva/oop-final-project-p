@@ -7,6 +7,7 @@ import Home from './components/Home'; // ✅ Import Home
 import TakeQuiz from './components/TakeQuiz';
 import QuizList from './components/QuizList';
 import QuizSummary from './components/QuizSummary';
+import CreateQuiz from './components/CreateQuiz';
 import './App.css';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
                 <Route path="/quiz/:quizId" element={<TakeQuiz />} />
                 <Route path="/quizzes" element={<QuizList />} />
                 <Route path="/quiz-summary/:quizId" element={<QuizSummary />} />
+                <Route path="/create-quiz" element={<CreateQuiz />} />
                 <Route path="/" element={<Login />} />
             </Routes>
         </Router>

@@ -26,7 +26,9 @@ const QuizList = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/api/quizzes')
+    fetch('http://localhost:8081/api/quizzes', {
+      credentials: 'include'
+    })
       .then(res => {
         if (!res.ok) throw new Error('Failed to load quizzes.');
         return res.json();
@@ -34,6 +36,7 @@ const QuizList = () => {
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
           setQuizzes(data);
+          setUseTestQuizzes(false);
         } else {
           setUseTestQuizzes(true);
         }
@@ -54,7 +57,7 @@ const QuizList = () => {
         {displayQuizzes.map(quiz => (
           <li key={quiz.id} style={{ marginBottom: '1em' }}>
             <b>{quiz.title}</b> by <span>{quiz.creator}</span>
-            <button style={{ marginLeft: '1em' }} onClick={() => navigate(`/quiz-summary/${quiz.id}`)}>View</button>
+            <button style={{ marginLeft: '1em' }} onClick={() => navigate(`/quiz/${quiz.id}`)}>Take</button>
           </li>
         ))}
       </ul>
