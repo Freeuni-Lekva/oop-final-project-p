@@ -9,6 +9,7 @@ const Home = () => {
     const [error, setError] = useState('');
     const [announcements, setAnnouncements] = useState([]);
     const [isFriendsModalOpen, setFriendsModalOpen] = useState(false);
+    const [achievements, setAchievements] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -24,6 +25,13 @@ const Home = () => {
             .then((data) => {
                 setMessage(data.message);
                 setUsername(data.user);
+                // Fetch achievements by username
+                if (data.user) {
+                    fetch(`http://localhost:8081/api/achievements/username/${data.user}`)
+                        .then(res => res.json())
+                        .then(setAchievements)
+                        .catch(() => setAchievements([]));
+                }
             })
             .catch((err) => setError(err.message));
 
@@ -37,6 +45,32 @@ const Home = () => {
     return (
         <div className="auth-container">
             {error && <div className="auth-error">{error}</div>}
+            {/* Achievements Section */}
+            {achievements.length > 0 && (
+                <div className="achievements-bar" style={{
+                    display: 'flex',
+                    gap: '18px',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    margin: '24px 0 12px 0',
+                    flexWrap: 'wrap',
+                }}>
+                    {achievements.map((ua) => (
+                        <div key={ua.id} style={{ position: 'relative', display: 'inline-block' }}>
+                            <span
+                                style={{ fontSize: '2.2rem', cursor: 'pointer' }}
+                                title={ua.achievement.description}
+                            >
+                                {/* Use emoji as fallback if no icon */}
+                                {ua.achievement.icon || '🏆'}
+                            </span>
+                            <div style={{ fontSize: '0.9rem', color: '#2563eb', textAlign: 'center', marginTop: '2px' }}>
+                                {ua.achievement.name}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
             <div className="main-box">
                 <h2>{message || 'Welcome!'}</h2>
                 {username && <p>Hello, <b>{username}</b>!</p>}

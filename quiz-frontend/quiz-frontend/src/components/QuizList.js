@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './Quiz.css';
 
 const TEST_QUIZZES = [
   {
@@ -50,14 +51,19 @@ const QuizList = () => {
   const displayQuizzes = useTestQuizzes ? TEST_QUIZZES : quizzes;
 
   return (
-    <div className="quiz-list-container auth-container">
-      <h2>Available Quizzes</h2>
+    <div className="quiz-list-container">
+      <h2 style={{textAlign:'center',marginBottom:'24px'}}>Available Quizzes</h2>
       {error && <div style={{ color: 'red', marginBottom: '1em' }}>{error}</div>}
-      <ul>
+      <ul className="quiz-list">
         {displayQuizzes.map(quiz => (
-          <li key={quiz.id} style={{ marginBottom: '1em' }}>
-            <b>{quiz.title}</b> by <span>{quiz.creator}</span>
-            <button style={{ marginLeft: '1em' }} onClick={() => navigate(`/quiz/${quiz.id}`)}>Take</button>
+          <li key={quiz.id} className="quiz-card">
+            <div>
+              <div className="quiz-title">{quiz.title}</div>
+              <div className="quiz-meta">by {quiz.createdBy || quiz.creator}</div>
+            </div>
+            <button className="quiz-btn quiz-btn-primary" onClick={() => navigate(`/quiz/${quiz.id}`)}>
+              Take
+            </button>
           </li>
         ))}
       </ul>
