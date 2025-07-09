@@ -17,6 +17,10 @@ const QuizSummary = () => {
     const [isOwner, setIsOwner] = useState(false);
     const [creatorId, setCreatorId] = useState(null);
     const [currentUsername, setCurrentUsername] = useState('');
+    const [isChallengeModalOpen, setChallengeModalOpen] = useState(false);
+    const [friends, setFriends] = useState([]);
+    const [selectedFriend, setSelectedFriend] = useState('');
+    const [challenging, setChallenging] = useState(false);
 
     useEffect(() => {
         fetch(`http://localhost:8081/api/quizzes/${quizId}`, { credentials: 'include' })
@@ -92,6 +96,57 @@ const QuizSummary = () => {
             alert('Failed to delete quiz: ' + err.message);
         } finally {
             setDeleting(false);
+        }
+    };
+
+    const fetchFriends = async () => {
+        try {
+            const response = await fetch(`http://localhost:8081/api/friends/list/${currentUsername}`, {
+                credentials: 'include'
+            });
+            if (response.ok) {
+                const friendsData = await response.json();
+                setFriends(Array.isArray(friendsData) ? friendsData : []);
+            }
+        } catch (err) {
+            console.error('Failed to fetch friends:', err);
+            setFriends([]);
+        }
+    };
+
+    const handleChallengeFriend = async () => {
+        if (!selectedFriend) {
+            alert('Please select a friend to challenge');
+            return;
+        }
+        
+        setChallenging(true);
+        try {
+            const response = await fetch('http://localhost:8081/api/challenges/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    challengerUsername: currentUsername,
+                    challengedUsername: selectedFriend,
+                    quizId: quizId
+                })
+            });
+            
+            if (response.ok) {
+                alert('Challenge sent successfully!');
+                setChallengeModalOpen(false);
+                setSelectedFriend('');
+            } else {
+                const errorText = await response.text();
+                alert('Failed to send challenge: ' + errorText);
+            }
+        } catch (err) {
+            alert('Failed to send challenge: ' + err.message);
+        } finally {
+            setChallenging(false);
         }
     };
 
@@ -172,6 +227,13 @@ const QuizSummary = () => {
                         Practice Mode
                     </button>
                 )}
+                {/* Challenge a Friend button */}
+                <button className="quiz-btn quiz-btn-secondary" onClick={() => {
+                    fetchFriends();
+                    setChallengeModalOpen(true);
+                }}>
+                    Challenge a Friend
+                </button>
                 {/* Edit button if owner */}
                 {isOwner && (
                     <button className="quiz-btn quiz-btn-secondary" onClick={() => navigate(`/edit-quiz/${quiz.id}`)}>
@@ -184,6 +246,43 @@ const QuizSummary = () => {
                     </button>
                 )}
             </div>
+
+            {/* Challenge Modal */}
+            {isChallengeModalOpen && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h3>Challenge a Friend</h3>
+                        <p>Select a friend to challenge to take this quiz:</p>
+                        <select 
+                            value={selectedFriend} 
+                            onChange={(e) => setSelectedFriend(e.target.value)}
+                            style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                        >
+                            <option value="">Select a friend...</option>
+                            {friends.map(friend => (
+                                <option key={friend.id} value={friend.username}>
+                                    {friend.username}
+                                </option>
+                            ))}
+                        </select>
+                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                            <button 
+                                onClick={() => setChallengeModalOpen(false)}
+                                style={{ padding: '8px 16px' }}
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={handleChallengeFriend}
+                                disabled={challenging || !selectedFriend}
+                                style={{ padding: '8px 16px', backgroundColor: '#2563eb', color: 'white' }}
+                            >
+                                {challenging ? 'Sending...' : 'Send Challenge'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
