@@ -16,19 +16,16 @@ public class QuizTakingService {
     private final QuizAttemptRepository quizAttemptRepository;
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
-    private final AchievementService achievementService;
 
     @Autowired
     public QuizTakingService(QuizRepository quizRepository,
                              QuizAttemptRepository quizAttemptRepository,
                              QuestionRepository questionRepository,
-                             AnswerRepository answerRepository,
-                             AchievementService achievementService) {
+                             AnswerRepository answerRepository) {
         this.quizRepository = quizRepository;
         this.quizAttemptRepository = quizAttemptRepository;
         this.questionRepository = questionRepository;
         this.answerRepository = answerRepository;
-        this.achievementService = achievementService;
     }
 
     // Start a new attempt
@@ -88,17 +85,6 @@ public class QuizTakingService {
         answerRepository.saveAll(answers);
         attempt.completeAttempt(correctCount);
         QuizAttempt savedAttempt = quizAttemptRepository.save(attempt);
-        // Award achievements
-        if (savedAttempt.getIsCompleted()) {
-            User user = savedAttempt.getUser();
-            long takenCount = quizAttemptRepository.findByUserIdAndIsCompletedTrueOrderByStartTimeDesc(user.getId()).size();
-            achievementService.checkQuizTakerAchievements(user, takenCount, savedAttempt.getIsPracticeMode());
-            // Check for highest score
-            List<QuizAttempt> topScores = quizAttemptRepository.findTopScoresByQuizId(savedAttempt.getQuiz().getId());
-            if (!topScores.isEmpty() && topScores.get(0).getUser().getId().equals(user.getId()) && topScores.get(0).getScore().equals(savedAttempt.getScore())) {
-                achievementService.awardGreatestAchievement(user);
-            }
-        }
         return savedAttempt;
     }
 

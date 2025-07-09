@@ -61,8 +61,8 @@ const QuizList = () => {
               <div className="quiz-title">{quiz.title}</div>
               <div className="quiz-meta">by {quiz.createdBy || quiz.creator}</div>
             </div>
-            <button className="quiz-btn quiz-btn-primary" onClick={() => navigate(`/quiz/${quiz.id}`)}>
-              Take
+            <button className="quiz-btn quiz-btn-primary" onClick={() => navigate(`/quiz-summary/${quiz.id}`)}>
+              Check it out
             </button>
           </li>
         ))}
