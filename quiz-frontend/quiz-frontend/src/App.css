@@ -46,7 +46,7 @@ body {
 
 /* ===== Auth Box (Used in Login, Register, CreateQuiz) ===== */
 .auth-container {
-  max-width: 700px; /* ⬅️ Wider for CreateQuiz page */
+  max-width: 700px; /* Wider for CreateQuiz page */
   margin: 60px auto;
   background: #ffffff;
   border-radius: 12px;
@@ -55,6 +55,12 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+/* Narrow auth container for login/register pages */
+.auth-container-narrow {
+  max-width: 400px;
+  padding: 32px 28px 24px 28px;
 }
 
 /* ===== Auth Form Fields ===== */
@@ -66,7 +72,21 @@ body {
   margin-bottom: 12px;
 }
 
-.auth-form input,
+.auth-form input {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #f9fafb;
+  transition: border 0.2s;
+}
+
+.auth-form input:focus {
+  border: 1.5px solid #6366f1;
+  outline: none;
+  background: rgba(255, 255, 255, 0.8); /* Matches first file */
+}
+
 .auth-form textarea,
 .auth-form select {
   padding: 10px 12px;
@@ -77,12 +97,11 @@ body {
   transition: border 0.2s;
 }
 
-.auth-form input:focus,
 .auth-form textarea:focus,
 .auth-form select:focus {
   border: 1.5px solid #6366f1;
   outline: none;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.9); /* Retains second file's style */
 }
 
 /* ===== Auth Form Buttons ===== */
@@ -249,7 +268,7 @@ p {
   font-size: 0.8rem;
 }
 
-/* ===== NEW: Question Box for CreateQuiz Page ===== */
+/* ===== Question Box for CreateQuiz Page ===== */
 .question-box {
   border: 1px solid #e5e7eb;
   padding: 20px;
@@ -314,7 +333,6 @@ p {
   margin-bottom: 12px;
 }
 
-
 /* Add spacing between correct answer fields */
 .correct-answer-group {
   display: flex;
@@ -322,4 +340,3 @@ p {
   gap: 5px;
   margin-bottom: 5px;
 }
-

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const CreateQuiz = () => {
     const [title, setTitle] = useState('');
@@ -13,6 +13,7 @@ const CreateQuiz = () => {
         { questionText: '', type: 'QUESTION_RESPONSE', correctAnswers: [''], options: [], imageUrl: '', questionOrder: 1 }
     ]);
     const [message, setMessage] = useState('');
+    const navigate = useNavigate();
 
     const handleAddQuestion = () => {
         setQuestions([...questions, {
@@ -158,9 +159,22 @@ const CreateQuiz = () => {
                 },
                 { withCredentials: true }
             );
-            setMessage('Quiz created successfully!');
+            setMessage('Quiz created successfully! Redirecting...');
+            setTimeout(() => navigate('/quizzes'), 1200);
         } catch (err) {
-            setMessage('Failed to create quiz: ' + (err.response?.data || err.message));
+            let errorMsg = 'Failed to create quiz: ';
+            if (err.response?.data) {
+                if (typeof err.response.data === 'string') {
+                    errorMsg += err.response.data;
+                } else if (err.response.data.message) {
+                    errorMsg += err.response.data.message;
+                } else {
+                    errorMsg += JSON.stringify(err.response.data);
+                }
+            } else {
+                errorMsg += err.message;
+            }
+            setMessage(errorMsg);
         }
     };
 

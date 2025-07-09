@@ -70,7 +70,7 @@ const Home = () => {
             {error && <div className="auth-error">{error}</div>}
 
             <div className="main-box">
-                <h1>{message || 'Welcome!'}</h1>
+                <h2>{message || 'Welcome!'}</h2>
                 {username && <p>Hello, <b>{username}</b>!</p>}
                 {username && (
                     <button onClick={() => navigate('/create-quiz')} style={{ marginTop: '16px' }}>
@@ -80,7 +80,7 @@ const Home = () => {
             </div>
 
             <div className="announcement-box">
-                <h2>📣 Announcements</h2>
+                <h3>📣 Announcements</h3>
                 {announcements.length === 0 ? (
                     <p>No announcements available.</p>
                 ) : (
@@ -96,6 +96,10 @@ const Home = () => {
                     </ul>
                 )}
             </div>
+
+            {/* Navigation Buttons */}
+            <button onClick={() => navigate('/quizzes')} style={{marginTop: '20px', marginRight: '10px'}}>Browse Quizzes</button>
+            <button onClick={() => navigate('/create-quiz')} style={{marginTop: '20px'}}>Create a Quiz</button>
 
             {/* Top-right floating icons */}
             <div className="top-right-icons">

@@ -1,7 +1,7 @@
 package com.quizapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,7 +20,7 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotEmpty(message = "Question text cannot be empty")
+
     private String questionText;
 
     @Enumerated(EnumType.STRING)
@@ -43,6 +43,7 @@ public class Question {
 
     @ManyToOne
     @JoinColumn(name = "quiz_id")
+    @JsonIgnore
     private Quiz quiz;
 
     public enum QuestionType {
@@ -92,5 +93,28 @@ public class Question {
         return correctAnswers.stream()
                 .map(ans -> ans.trim().toLowerCase())
                 .anyMatch(ans -> ans.equals(normalized));
+    }
+
+    public boolean areAnswersCorrect(List<String> userAnswers) {
+        if (correctAnswers == null || userAnswers == null) {
+            return false;
+        }
+        if (userAnswers.size() != correctAnswers.size()) {
+            return false;
+        }
+        if (Boolean.TRUE.equals(orderMatters)) {
+            for (int i = 0; i < userAnswers.size(); i++) {
+                String userAns = userAnswers.get(i) == null ? "" : userAnswers.get(i).trim().toLowerCase();
+                String correctAns = correctAnswers.get(i) == null ? "" : correctAnswers.get(i).trim().toLowerCase();
+                if (!userAns.equals(correctAns)) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            List<String> normalizedUser = userAnswers.stream().map(a -> a == null ? "" : a.trim().toLowerCase()).collect(Collectors.toList());
+            List<String> normalizedCorrect = correctAnswers.stream().map(a -> a == null ? "" : a.trim().toLowerCase()).collect(Collectors.toList());
+            return normalizedUser.containsAll(normalizedCorrect) && normalizedCorrect.containsAll(normalizedUser);
+        }
     }
 }

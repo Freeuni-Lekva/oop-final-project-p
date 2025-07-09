@@ -41,4 +41,8 @@ public class UserService {
     public boolean userExists(String username) {
         return userRepository.findByUsername(username).isPresent();
     }
+
+    public User getUserById(Long id) {
+        return userRepository.findById(id).orElse(null);
+    }
 }
