@@ -6,18 +6,29 @@ const AdminDashboard = () => {
     const [error, setError] = useState('');
     const [newTitle, setNewTitle] = useState('');
     const [newContent, setNewContent] = useState('');
+    const [currentUsername, setCurrentUsername] = useState('');
 
     useEffect(() => {
         document.title = "Admin Dashboard";
         fetchUsers();
+        fetchCurrentUser();
     }, []);
+
+    const fetchCurrentUser = async () => {
+        try {
+            const res = await fetch('http://localhost:8081/api/home', { credentials: 'include' });
+            const data = await res.json();
+            setCurrentUsername(data.user);
+        } catch (err) {
+            setCurrentUsername('');
+        }
+    };
 
     const fetchUsers = async () => {
         try {
             const res = await axios.get('http://localhost:8081/api/admin/users', {
                 withCredentials: true,
             });
-
             setUsers(Array.isArray(res.data) ? res.data : []);
         } catch (err) {
             setError('Failed to fetch users. You must be an admin.');
@@ -72,7 +83,7 @@ const AdminDashboard = () => {
                 <table>
                     <thead>
                     <tr>
-                        <th>ID</th>
+                        {/* <th>ID</th> */}
                         <th>Username</th>
                         <th>Role</th>
                         <th>Actions</th>
@@ -81,14 +92,17 @@ const AdminDashboard = () => {
                     <tbody>
                     {users.map((user) => (
                         <tr key={user.id}>
-                            <td>{user.id}</td>
+                            {/* <td>{user.id}</td> */}
                             <td>{user.username}</td>
-                            <td>{user.role}</td>
+                            <td>{user.role === 'ROLE_ADMIN' ? 'Admin' : 'User'}</td>
                             <td>
                                 {user.role !== 'ROLE_ADMIN' && (
                                     <button onClick={() => promoteUser(user.id)}>Promote</button>
                                 )}
-                                <button onClick={() => deleteUser(user.id)}>Delete</button>
+                                {/* Hide delete button for current user */}
+                                {user.username !== currentUsername && (
+                                    <button onClick={() => deleteUser(user.id)}>Delete</button>
+                                )}
                             </td>
                         </tr>
                     ))}

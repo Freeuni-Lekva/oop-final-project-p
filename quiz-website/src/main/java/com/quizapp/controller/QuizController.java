@@ -4,6 +4,9 @@ import com.quizapp.model.Quiz;
 import com.quizapp.model.User;
 import com.quizapp.service.QuizService;
 import com.quizapp.service.UserService;
+import com.quizapp.util.SecurityUtils;
+import com.quizapp.repository.QuizAttemptRepository;
+import com.quizapp.repository.AnswerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api/quizzes")
@@ -21,6 +25,8 @@ public class QuizController {
 
     private final QuizService quizService;
     private final UserService userService;
+    private final QuizAttemptRepository quizAttemptRepository;
+    private final AnswerRepository answerRepository;
 
     @PostMapping
     public Quiz createQuiz(@RequestBody Quiz quiz, @AuthenticationPrincipal UserDetails userDetails) {
@@ -52,6 +58,21 @@ public class QuizController {
                         quiz.getCreatedBy() != null ? quiz.getCreatedBy().getUsername() : null
                 ))
                 .toList();
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteQuiz(@PathVariable Long id, Authentication authentication) {
+        if (!SecurityUtils.isAdmin(authentication)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can delete quizzes");
+        }
+        // Delete all quiz attempts and answers for this quiz
+        var attempts = quizAttemptRepository.findByQuizIdOrderByScoreDescTimeTakenMinutesAsc(id);
+        for (var attempt : attempts) {
+            answerRepository.deleteAll(answerRepository.findByQuizAttemptIdOrderByQuestionNumber(attempt.getId()));
+            quizAttemptRepository.delete(attempt);
+        }
+        // Delete the quiz itself (questions/options cascade)
+        quizService.deleteQuiz(id);
     }
 
     public static class QuizSummaryDto {

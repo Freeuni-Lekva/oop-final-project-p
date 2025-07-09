@@ -32,4 +32,9 @@ public class QuizService {
     public List<Quiz> getAllQuizzes() {
         return quizRepository.findAll();
     }
+
+    @Transactional
+    public void deleteQuiz(Long id) {
+        quizRepository.deleteById(id);
+    }
 }

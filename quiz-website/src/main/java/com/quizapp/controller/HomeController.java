@@ -21,9 +21,12 @@ public class HomeController {
         if (user != null) {
             response.put("message", "Welcome to the home page!");
             response.put("user", user.getUsername());
+            // Add role to response
+            response.put("role", user.getAuthorities().stream().findFirst().map(Object::toString).orElse(""));
         } else {
             response.put("message", "Not authenticated");
             response.put("user", null);
+            response.put("role", "");
         }
         return response;
     }

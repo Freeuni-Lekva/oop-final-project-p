@@ -7,11 +7,14 @@ import { useNavigate } from 'react-router-dom';
 const Home = () => {
     const [message, setMessage] = useState('');
     const [username, setUsername] = useState('');
+    const [role, setRole] = useState(''); // NEW: store role
     const [error, setError] = useState('');
     const [announcements, setAnnouncements] = useState([]);
     const [isFriendsModalOpen, setFriendsModalOpen] = useState(false);
     const [isMessagesModalOpen, setMessagesModalOpen] = useState(false);
     const [isSignOutModalOpen, setSignOutModalOpen] = useState(false);
+    const [showStats, setShowStats] = useState(false); // NEW: show/hide stats modal
+    const [stats, setStats] = useState(null); // NEW: store stats
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -25,6 +28,7 @@ const Home = () => {
             .then((data) => {
                 setMessage(data.message);
                 setUsername(data.user);
+                setRole(data.role); // NEW: set role
             })
             .catch((err) => setError(err.message));
 
@@ -45,14 +49,53 @@ const Home = () => {
         navigate('/login');
     };
 
+    // Fetch statistics when modal is opened
+    const handleShowStats = async () => {
+        try {
+            const res = await fetch('http://localhost:8081/api/admin/statistics', { credentials: 'include' });
+            if (!res.ok) throw new Error('Failed to fetch statistics');
+            const data = await res.json();
+            setStats(data);
+        } catch (e) {
+            setStats({ error: 'Failed to fetch statistics' });
+        }
+        setShowStats(true);
+    };
+
     return (
         <div className="auth-container">
-            {/* Top-left sign out button */}
-            <div className="top-left-signout">
-                <button className="signout-icon-button" onClick={() => setSignOutModalOpen(true)} title="Sign Out">
-                    ⬅️
-                </button>
+            {/* Top-left action bar */}
+            <div style={{ position: 'fixed', top: 24, left: 32, display: 'flex', gap: 12, zIndex: 2000, background: '#fff', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.10)', padding: '6px 12px' }}>
+                {role === 'ROLE_ADMIN' && (
+                    <>
+                        <button onClick={() => navigate('/admin')} style={{ background: '#312e81', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 700, fontSize: 16, boxShadow: '0 2px 8px rgba(49,46,129,0.08)', cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background='#4338ca'} onMouseOut={e => e.currentTarget.style.background='#312e81'}>Admin</button>
+                        <button onClick={handleShowStats} style={{ background: '#0d9488', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 700, fontSize: 16, boxShadow: '0 2px 8px rgba(13,148,136,0.08)', cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background='#14b8a6'} onMouseOut={e => e.currentTarget.style.background='#0d9488'}>Statistics</button>
+                    </>
+                )}
+                <button onClick={() => setMessagesModalOpen(true)} style={{ background: '#2563eb', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 700, fontSize: 16, boxShadow: '0 2px 8px rgba(37,99,235,0.08)', cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background='#1d4ed8'} onMouseOut={e => e.currentTarget.style.background='#2563eb'}>Messages</button>
+                <button onClick={() => setFriendsModalOpen(true)} style={{ background: '#059669', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 700, fontSize: 16, boxShadow: '0 2px 8px rgba(5,150,105,0.08)', cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background='#10b981'} onMouseOut={e => e.currentTarget.style.background='#059669'}>Friends</button>
+                <button onClick={() => setSignOutModalOpen(true)} style={{ background: '#e11d48', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 700, fontSize: 16, boxShadow: '0 2px 8px rgba(225,29,72,0.08)', cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background='#be123c'} onMouseOut={e => e.currentTarget.style.background='#e11d48'}>Sign Out</button>
             </div>
+
+            {/* Statistics Modal */}
+            {showStats && (
+                <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.25)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ background: '#fff', borderRadius: 12, padding: 32, minWidth: 320, boxShadow: '0 4px 24px rgba(0,0,0,0.12)', position: 'relative' }}>
+                        <button onClick={() => setShowStats(false)} style={{ position: 'absolute', top: 12, right: 12, background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#888' }}>&times;</button>
+                        <h2 style={{ color: '#4f46e5', marginBottom: 18 }}>Site Statistics</h2>
+                        {stats ? (
+                            stats.error ? <div style={{ color: 'red' }}>{stats.error}</div> :
+                            <ul style={{ fontSize: 18, lineHeight: 2 }}>
+                                <li><b>Users:</b> {stats.users}</li>
+                                <li><b>Quizzes:</b> {stats.quizzes}</li>
+                                <li><b>Quizzes Taken:</b> {stats.quizzesTaken}</li>
+                            </ul>
+                        ) : (
+                            <div>Loading...</div>
+                        )}
+                    </div>
+                </div>
+            )}
 
             {/* Sign-out Modal */}
             {isSignOutModalOpen && (
@@ -89,7 +132,7 @@ const Home = () => {
                             <li key={a.id}>
                                 <strong>{a.title}</strong><br />
                                 <span>{a.content}</span><br />
-                                <small>{new Date(a.createdAt).toLocaleString()}</small>
+                                <small>{new Date(a.createdAt).toLocaleString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</small>
                                 <hr />
                             </li>
                         ))}
@@ -100,16 +143,6 @@ const Home = () => {
             {/* Navigation Buttons */}
             <button onClick={() => navigate('/quizzes')} style={{marginTop: '20px', marginRight: '10px'}}>Browse Quizzes</button>
             <button onClick={() => navigate('/create-quiz')} style={{marginTop: '20px'}}>Create a Quiz</button>
-
-            {/* Top-right floating icons */}
-            <div className="top-right-icons">
-                <button onClick={() => setMessagesModalOpen(true)} className="messages-icon-button" title="Messages">
-                    💬
-                </button>
-                <button onClick={() => setFriendsModalOpen(true)} className="friends-icon-button" title="Friends">
-                    👥
-                </button>
-            </div>
 
             {/* Modals */}
             <FriendsModal

@@ -59,6 +59,12 @@ public class FriendService {
         User requester = userRepository.findByUsername(requesterUsername).orElseThrow(() -> new RuntimeException("User not found: " + requesterUsername));
         User addressee = userRepository.findByUsername(addresseeUsername).orElseThrow(() -> new RuntimeException("User not found: " + addresseeUsername));
 
+        // NEW: Check if already friends
+        List<String> requesterFriends = getFriendList(requesterUsername);
+        if (requesterFriends.contains(addresseeUsername)) {
+            return "User is already your friend.";
+        }
+
         // Check if a request from the addressee to the requester already exists
         Optional<FriendRequest> reverseRequest = friendRequestRepository.findByRequesterAndAddressee(addressee, requester);
         if (reverseRequest.isPresent()) {
