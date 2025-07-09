@@ -2,6 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import './UserProfile.css';
 
+function getInitials(name) {
+    if (!name) return '';
+    const parts = name.split(' ');
+    if (parts.length === 1) return parts[0][0].toUpperCase();
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+}
+
 const UserProfile = () => {
     const { username } = useParams();
     const [profile, setProfile] = useState(null);
@@ -117,41 +124,42 @@ const UserProfile = () => {
     if (!profile) return <div className="profile-loading">Loading...</div>;
 
     return (
-        <div className="profile-card">
-            <div className="profile-header">
-                <div className="profile-avatar">
-                    {/* Placeholder avatar */}
-                    <span role="img" aria-label="avatar" style={{ fontSize: '3rem' }}>👤</span>
+        <div className="profile-page-bg">
+            <div className="profile-card-modern">
+                <div className="profile-avatar-wrapper">
+                    <div className="profile-avatar-modern">
+                        <span className="profile-avatar-initials">{getInitials(profile.username)}</span>
+                    </div>
                 </div>
-                <div>
-                    <h2>{profile.username}</h2>
-                    <p className="profile-id">User ID: {profile.id}</p>
+                <div className="profile-header-modern">
+                    <h2 className="profile-username-modern">{profile.username}</h2>
+                    <p className="profile-id-modern">User ID: {profile.id}</p>
                 </div>
-            </div>
-            <div className="profile-status">
-                {currentUser === profile.username ? (
-                    <p className="profile-self">This is your profile.</p>
-                ) : friendStatus === 'FRIENDS' ? (
-                    <>
-                        <p className="profile-friends">You are already friends.</p>
-                        <button className="profile-remove-friend" onClick={handleRemoveFriend} style={{backgroundColor: '#f44336', color: '#fff', marginTop: '0.5rem'}}>Remove Friend</button>
-                    </>
-                ) : friendStatus === 'PENDING' ? (
-                    pendingRequestId ? (
-                        <div className="profile-pending">
-                            <p>Friend request pending. Respond?</p>
-                            <button className="profile-accept-friend" onClick={handleAcceptRequest} style={{backgroundColor: '#28a745', color: '#fff', marginRight: '0.5rem'}}>Accept</button>
-                            <button className="profile-reject-friend" onClick={handleRejectRequest} style={{backgroundColor: '#f44336', color: '#fff'}}>Reject</button>
-                        </div>
+                <div className="profile-status">
+                    {currentUser === profile.username ? (
+                        <p className="profile-self">This is your profile.</p>
+                    ) : friendStatus === 'FRIENDS' ? (
+                        <>
+                            <p className="profile-friends">You are already friends.</p>
+                            <button className="profile-remove-friend" onClick={handleRemoveFriend} style={{backgroundColor: '#f44336', color: '#fff', marginTop: '0.5rem'}}>Remove Friend</button>
+                        </>
+                    ) : friendStatus === 'PENDING' ? (
+                        pendingRequestId ? (
+                            <div className="profile-pending">
+                                <p>Friend request pending. Respond?</p>
+                                <button className="profile-accept-friend" onClick={handleAcceptRequest} style={{backgroundColor: '#28a745', color: '#fff', marginRight: '0.5rem'}}>Accept</button>
+                                <button className="profile-reject-friend" onClick={handleRejectRequest} style={{backgroundColor: '#f44336', color: '#fff'}}>Reject</button>
+                            </div>
+                        ) : (
+                            <p className="profile-pending">Friend request pending.</p>
+                        )
                     ) : (
-                        <p className="profile-pending">Friend request pending.</p>
-                    )
-                ) : (
-                    <button className="profile-add-friend" onClick={handleAddFriend}>Add Friend</button>
-                )}
-                {success && <div className="profile-success">{success}</div>}
+                        <button className="profile-add-friend" onClick={handleAddFriend}>Add Friend</button>
+                    )}
+                    {success && <div className="profile-success">{success}</div>}
+                </div>
             </div>
-            <div className="profile-quiz-history">
+            <div className="profile-quiz-history-modern">
                 <h3>Recently Taken Quizzes</h3>
                 {quizHistory.length === 0 ? (
                     <p>No quizzes taken yet.</p>

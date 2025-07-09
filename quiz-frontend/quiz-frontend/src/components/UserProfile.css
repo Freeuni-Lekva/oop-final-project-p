@@ -1,89 +1,93 @@
-.profile-card {
-  max-width: 400px;
-  margin: 2rem auto;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  padding: 2rem;
+body, .profile-page-bg {
+  background: #653d8e;
+  min-height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+}
+
+.profile-page-bg {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-top: 3rem;
+  min-height: 100vh;
 }
 
-.profile-header {
+.profile-card-modern {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(103,58,183,0.10);
+  border: 1.5px solid #b39ddb;
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
-.profile-avatar {
-  width: 64px;
-  height: 64px;
-  background: #f0f0f0;
+.profile-avatar-wrapper {
+  position: absolute;
+  top: -48px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.profile-avatar-modern {
+  width: 96px;
+  height: 96px;
+  background: #d1c4e9;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 16px rgba(103,58,183,0.13);
+  border: 4px solid #fff;
 }
 
-.profile-id {
-  color: #888;
-  font-size: 0.95rem;
+.profile-avatar-initials {
+  font-size: 2.7rem;
+  font-weight: 700;
+  color: #6a11cb;
+  user-select: none;
 }
 
-.profile-status {
-  margin-top: 1rem;
+.profile-header-modern {
+  margin-top: 56px;
   text-align: center;
 }
 
-.profile-add-friend {
-  background: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 0.5rem 1.2rem;
+.profile-username-modern {
+  color: #6a11cb;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.profile-id-modern {
+  color: #888;
   font-size: 1rem;
-  cursor: pointer;
-  margin-top: 0.5rem;
-  transition: background 0.2s;
-}
-.profile-add-friend:hover {
-  background: #0056b3;
 }
 
-.profile-friends {
-  color: #28a745;
-  font-weight: 500;
-}
-.profile-pending {
-  color: #ffc107;
-  font-weight: 500;
-}
-.profile-self {
-  color: #888;
-}
-.profile-success {
-  color: #28a745;
-  margin-top: 0.5rem;
-}
-.profile-error {
-  color: #dc3545;
-  text-align: center;
-  margin-top: 2rem;
-}
-.profile-loading {
-  text-align: center;
-  margin-top: 2rem;
-}
-
-.profile-quiz-history {
-  margin-top: 2rem;
+.profile-quiz-history-modern {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(103,58,183,0.08);
+  border: 1.5px solid #b39ddb;
+  padding: 1.5rem 2rem;
   width: 100%;
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 1rem 1.5rem;
-  box-sizing: border-box;
+  max-width: 420px;
+  margin-bottom: 2rem;
+}
+
+.profile-quiz-history-modern h3 {
+  color: #6a11cb;
+  font-weight: 600;
+  margin-bottom: 1rem;
 }
 
 .quiz-history-list {
