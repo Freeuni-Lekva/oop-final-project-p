@@ -26,7 +26,7 @@ const FriendList = () => {
                 <ul className="friends-list">
                     {friends.map((friend, index) => (
                         <li key={index} className="friend-item">
-                            <span>{friend}</span>
+                            <a href={`/profile/${friend}`}>{friend}</a>
                         </li>
                     ))}
                 </ul>

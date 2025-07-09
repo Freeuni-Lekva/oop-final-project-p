@@ -1,0 +1,101 @@
+.profile-card {
+  max-width: 400px;
+  margin: 2rem auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  background: #f0f0f0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-id {
+  color: #888;
+  font-size: 0.95rem;
+}
+
+.profile-status {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.profile-add-friend {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s;
+}
+.profile-add-friend:hover {
+  background: #0056b3;
+}
+
+.profile-friends {
+  color: #28a745;
+  font-weight: 500;
+}
+.profile-pending {
+  color: #ffc107;
+  font-weight: 500;
+}
+.profile-self {
+  color: #888;
+}
+.profile-success {
+  color: #28a745;
+  margin-top: 0.5rem;
+}
+.profile-error {
+  color: #dc3545;
+  text-align: center;
+  margin-top: 2rem;
+}
+.profile-loading {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.profile-quiz-history {
+  margin-top: 2rem;
+  width: 100%;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  box-sizing: border-box;
+}
+
+.quiz-history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.quiz-history-item {
+  border-bottom: 1px solid #e0e0e0;
+  padding: 0.75rem 0;
+}
+.quiz-history-item:last-child {
+  border-bottom: none;
+} 

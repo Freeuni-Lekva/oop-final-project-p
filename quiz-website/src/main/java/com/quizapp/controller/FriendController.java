@@ -53,10 +53,10 @@ public class FriendController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<String>> searchUsers(@AuthenticationPrincipal UserDetails userDetails, @RequestParam String username) {
+    public ResponseEntity<List<Map<String, String>>> searchUsers(@AuthenticationPrincipal UserDetails userDetails, @RequestParam String username) {
         log.info("Received search request for username: '{}' from user: '{}'", username, userDetails.getUsername());
         try {
-            List<String> users = friendService.searchUsers(username, userDetails.getUsername());
+            List<Map<String, String>> users = friendService.searchUsers(username, userDetails.getUsername());
             log.info("Found {} users matching the search.", users.size());
             return ResponseEntity.ok(users);
         } catch (Exception e) {
