@@ -95,6 +95,35 @@
     margin-top: 24px;
 }
 
+.quiz-summary-section {
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 16px;
+    margin: 18px 0;
+    border-left: 4px solid #2563eb;
+}
+
+.quiz-summary-section h4 {
+    margin: 0 0 12px 0;
+    color: #2563eb;
+    font-size: 1.1rem;
+}
+
+.quiz-summary-section ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.quiz-summary-section li {
+    padding: 6px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.quiz-summary-section li:last-child {
+    border-bottom: none;
+}
+
 /* TakeQuiz */
 .question-block {
     background: #f8fafc;

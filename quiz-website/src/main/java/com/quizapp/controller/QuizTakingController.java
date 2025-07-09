@@ -100,6 +100,19 @@ public class QuizTakingController {
         }
     }
 
+    // Top scores in the last day
+    @GetMapping("/top-scores-today/{quizId}")
+    public ResponseEntity<List<QuizAttempt>> getTopScoresToday(
+            @PathVariable Long quizId,
+            @RequestParam(defaultValue = "10") int limit) {
+        try {
+            List<QuizAttempt> topScoresToday = quizTakingService.getTopScoresToday(quizId, limit);
+            return ResponseEntity.ok(topScoresToday);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     // History
     @GetMapping("/history/user/{userId}")
     public ResponseEntity<List<QuizAttempt>> getUserHistory(@PathVariable Long userId) {

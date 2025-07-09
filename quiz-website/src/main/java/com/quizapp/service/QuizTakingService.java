@@ -101,6 +101,11 @@ public class QuizTakingService {
         return topScores.stream().limit(limit).collect(Collectors.toList());
     }
 
+    public List<QuizAttempt> getTopScoresToday(Long quizId, int limit) {
+        List<QuizAttempt> topScoresToday = quizAttemptRepository.findTopScoresTodayByQuizId(quizId);
+        return topScoresToday.stream().limit(limit).collect(Collectors.toList());
+    }
+
     public List<QuizAttempt> getUserQuizHistory(Long userId, Long quizId) {
         return quizAttemptRepository.findByUserIdAndQuizIdOrderByStartTimeDesc(userId, quizId);
     }

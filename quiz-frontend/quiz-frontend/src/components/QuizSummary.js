@@ -21,6 +21,7 @@ const QuizSummary = () => {
     const [friends, setFriends] = useState([]);
     const [selectedFriend, setSelectedFriend] = useState('');
     const [challenging, setChallenging] = useState(false);
+    const [topScoresToday, setTopScoresToday] = useState([]);
 
     useEffect(() => {
         fetch(`http://localhost:8081/api/quizzes/${quizId}`, { credentials: 'include' })
@@ -50,27 +51,65 @@ const QuizSummary = () => {
                             setUserId(user.id);
                             // Fetch user history for this quiz
                             fetch(`http://localhost:8081/api/quiz-taking/history/user/${user.id}/quiz/${quizId}`)
-                                .then(res => res.json())
+                                .then(res => {
+                                    if (!res.ok) throw new Error('Failed to fetch user history');
+                                    return res.json();
+                                })
                                 .then(data => setUserHistory(Array.isArray(data) ? data : []))
-                                .catch(() => setUserHistory([]));
+                                .catch(err => {
+                                    console.error('User history fetch error:', err);
+                                    setUserHistory([]);
+                                });
                         }
                     }
                 }
                 // Fetch top scores (all time)
                 fetch(`http://localhost:8081/api/quiz-taking/top-scores/${quizId}?limit=5`)
-                    .then(res => res.json())
+                    .then(res => {
+                        if (!res.ok) throw new Error('Failed to fetch top scores');
+                        return res.json();
+                    })
                     .then(data => setTopScores(Array.isArray(data) ? data : []))
-                    .catch(() => setTopScores([]));
+                    .catch(err => {
+                        console.error('Top scores fetch error:', err);
+                        setTopScores([]);
+                    });
+                
+                // Fetch top scores today
+                fetch(`http://localhost:8081/api/quiz-taking/top-scores-today/${quizId}?limit=5`)
+                    .then(res => {
+                        if (!res.ok) throw new Error('Failed to fetch top scores today');
+                        return res.json();
+                    })
+                    .then(data => setTopScoresToday(Array.isArray(data) ? data : []))
+                    .catch(err => {
+                        console.error('Top scores today fetch error:', err);
+                        setTopScoresToday([]);
+                    });
+                
                 // Fetch recent attempts (last 15 min)
                 fetch(`http://localhost:8081/api/quiz-taking/recent/${quizId}?limit=5`)
-                    .then(res => res.json())
+                    .then(res => {
+                        if (!res.ok) throw new Error('Failed to fetch recent attempts');
+                        return res.json();
+                    })
                     .then(data => setRecentScores(Array.isArray(data) ? data : []))
-                    .catch(() => setRecentScores([]));
+                    .catch(err => {
+                        console.error('Recent attempts fetch error:', err);
+                        setRecentScores([]);
+                    });
+                
                 // Fetch stats
                 fetch(`http://localhost:8081/api/quiz-taking/statistics/${quizId}`)
-                    .then(res => res.json())
+                    .then(res => {
+                        if (!res.ok) throw new Error('Failed to fetch statistics');
+                        return res.json();
+                    })
                     .then(setStats)
-                    .catch(() => setStats(null));
+                    .catch(err => {
+                        console.error('Statistics fetch error:', err);
+                        setStats(null);
+                    });
             })
             .catch(() => setError('Failed to load quiz.'));
     }, [quizId]);
@@ -173,48 +212,73 @@ const QuizSummary = () => {
                 </div>
             )}
             {/* User History */}
-            <div style={{ margin: '18px 0' }}>
-                <b>Your Past Performance</b>
+            <div className="quiz-summary-section">
+                <h4>Your Past Performance</h4>
                 <div style={{ margin: '8px 0' }}>
                     <label>Sort by: </label>
-                    <select value={sortBy} onChange={e => setSortBy(e.target.value)}>
+                    <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={{ marginLeft: '8px', padding: '4px 8px', borderRadius: '4px', border: '1px solid #cbd5e1' }}>
                         <option value="date">Date</option>
                         <option value="percent">Percent Correct</option>
                         <option value="time">Time Taken</option>
                     </select>
                 </div>
-                <ul style={{ padding: 0, listStyle: 'none' }}>
+                <ul>
                     {(Array.isArray(userHistory) ? userHistory : []).sort((a, b) => {
                         if (sortBy === 'percent') return b.percentage - a.percentage;
                         if (sortBy === 'time') return (a.timeTakenMinutes || 0) - (b.timeTakenMinutes || 0);
                         return new Date(b.startTime) - new Date(a.startTime);
                     }).map((attempt, i) => (
-                        <li key={attempt.id} style={{ marginBottom: 6 }}>
-                            {new Date(attempt.startTime).toLocaleString()} — {attempt.score}/{attempt.totalQuestions} ({Math.round(attempt.percentage)}%) — {attempt.timeTakenMinutes} min
+                        <li key={attempt.id}>
+                            {new Date(attempt.startTime).toLocaleString()} — {(attempt.score || 0)}/{attempt.totalQuestions} ({Math.round(attempt.percentage || 0)}%) — {attempt.timeTakenMinutes !== null ? attempt.timeTakenMinutes : 'N/A'} min
                         </li>
                     ))}
+                    {(!Array.isArray(userHistory) || userHistory.length === 0) && (
+                        <li style={{ color: '#666', fontStyle: 'italic' }}>No previous attempts</li>
+                    )}
                 </ul>
             </div>
             {/* Top Performers */}
-            <div style={{ margin: '18px 0' }}>
-                <b>Top Performers (All Time)</b>
-                <ul style={{ padding: 0, listStyle: 'none' }}>
+            <div className="quiz-summary-section">
+                <h4>Top Performers (All Time)</h4>
+                <ul>
                     {(Array.isArray(topScores) ? topScores : []).map((attempt, i) => (
                         <li key={attempt.id}>
-                            {attempt.user?.username || 'User'}: {attempt.score}/{attempt.totalQuestions} ({Math.round(attempt.percentage)}%)
+                            {attempt.username || 'User'}: {(attempt.score || 0)}/{attempt.totalQuestions} ({Math.round(attempt.percentage || 0)}%)
                         </li>
                     ))}
+                    {(!Array.isArray(topScores) || topScores.length === 0) && (
+                        <li style={{ color: '#666', fontStyle: 'italic' }}>No attempts yet</li>
+                    )}
                 </ul>
             </div>
-            {/* Recent Test Takers */}
-            <div style={{ margin: '18px 0' }}>
-                <b>Recent Test Takers</b>
-                <ul style={{ padding: 0, listStyle: 'none' }}>
-                    {(Array.isArray(recentScores) ? recentScores : []).map((attempt, i) => (
+            
+            {/* Top Performers Today */}
+            <div className="quiz-summary-section">
+                <h4>Top Performers (Today)</h4>
+                <ul>
+                    {(Array.isArray(topScoresToday) ? topScoresToday : []).map((attempt, i) => (
                         <li key={attempt.id}>
-                            {attempt.user?.username || 'User'}: {attempt.score}/{attempt.totalQuestions} ({Math.round(attempt.percentage)}%) — {attempt.timeTakenMinutes} min
+                            {attempt.username || 'User'}: {(attempt.score || 0)}/{attempt.totalQuestions} ({Math.round(attempt.percentage || 0)}%)
                         </li>
                     ))}
+                    {(!Array.isArray(topScoresToday) || topScoresToday.length === 0) && (
+                        <li style={{ color: '#666', fontStyle: 'italic' }}>No attempts today</li>
+                    )}
+                </ul>
+            </div>
+            
+            {/* Recent Test Takers */}
+            <div className="quiz-summary-section">
+                <h4>Recent Test Takers</h4>
+                <ul>
+                    {(Array.isArray(recentScores) ? recentScores : []).map((attempt, i) => (
+                        <li key={attempt.id}>
+                            {attempt.username || 'User'}: {(attempt.score || 0)}/{attempt.totalQuestions} ({Math.round(attempt.percentage || 0)}%) — {attempt.timeTakenMinutes !== null ? attempt.timeTakenMinutes : 'N/A'} min
+                        </li>
+                    ))}
+                    {(!Array.isArray(recentScores) || recentScores.length === 0) && (
+                        <li style={{ color: '#666', fontStyle: 'italic' }}>No recent attempts</li>
+                    )}
                 </ul>
             </div>
             <div className="quiz-summary-actions">

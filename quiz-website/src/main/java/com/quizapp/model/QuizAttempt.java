@@ -14,7 +14,6 @@ public class QuizAttempt {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore
     private User user;
 
     @ManyToOne
@@ -131,6 +130,11 @@ public class QuizAttempt {
 
     public void setTimeTakenMinutes(Long timeTakenMinutes) {
         this.timeTakenMinutes = timeTakenMinutes;
+    }
+
+    // Helper method to get username safely
+    public String getUsername() {
+        return user != null ? user.getUsername() : null;
     }
 
     public void completeAttempt(Integer score) {
