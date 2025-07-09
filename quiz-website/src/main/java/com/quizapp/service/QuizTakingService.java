@@ -34,14 +34,7 @@ public class QuizTakingService {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new RuntimeException("Quiz not found"));
 
-        // Check for incomplete attempt
-        List<QuizAttempt> incompleteAttempts = quizAttemptRepository.findByUserIdAndIsCompletedFalse(user.getId());
-        for (QuizAttempt attempt : incompleteAttempts) {
-            if (attempt.getQuiz().getId().equals(quizId)) {
-                return attempt;
-            }
-        }
-
+        // Always create a new attempt with a fresh startTime
         QuizAttempt attempt = new QuizAttempt(user, quiz);
         attempt.setIsPracticeMode(isPracticeMode);
         return quizAttemptRepository.save(attempt);
