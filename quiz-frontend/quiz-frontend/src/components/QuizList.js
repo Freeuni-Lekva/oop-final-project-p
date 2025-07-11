@@ -24,9 +24,14 @@ const QuizList = () => {
     const [quizzes, setQuizzes] = useState([]);
     const [error, setError] = useState('');
     const [useTestQuizzes, setUseTestQuizzes] = useState(false);
+    const [role, setRole] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
+        fetch('http://localhost:8081/api/home', { credentials: 'include' })
+            .then((res) => res.json())
+            .then((data) => setRole(data.role || ''));
+
         fetch('http://localhost:8081/api/quizzes', {
             credentials: 'include'
         })
@@ -48,6 +53,19 @@ const QuizList = () => {
             });
     }, []);
 
+    const handleDelete = async (quizId) => {
+        if (!window.confirm('Are you sure you want to delete this quiz?')) return;
+        try {
+            await fetch(`http://localhost:8081/api/quizzes/${quizId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+            });
+            setQuizzes(quizzes.filter(q => q.id !== quizId));
+        } catch (err) {
+            alert('Failed to delete quiz.');
+        }
+    };
+
     const displayQuizzes = useTestQuizzes ? TEST_QUIZZES : quizzes;
 
     return (
@@ -61,9 +79,16 @@ const QuizList = () => {
                             <div className="quiz-title">{quiz.title}</div>
                             <div className="quiz-meta">by {quiz.createdBy || quiz.creator}</div>
                         </div>
-                        <button className="quiz-btn quiz-btn-primary" onClick={() => navigate(`/quiz-summary/${quiz.id}`)}>
-                            Check it out
-                        </button>
+                        <div style={{ display: 'flex', gap: 10 }}>
+                            <button className="quiz-btn quiz-btn-primary" onClick={() => navigate(`/quiz-summary/${quiz.id}`)}>
+                                Check it out
+                            </button>
+                            {role === 'ROLE_ADMIN' && !useTestQuizzes && (
+                                <button className="quiz-btn quiz-btn-danger" onClick={() => handleDelete(quiz.id)}>
+                                    Delete
+                                </button>
+                            )}
+                        </div>
                     </li>
                 ))}
             </ul>
@@ -72,4 +97,4 @@ const QuizList = () => {
     );
 };
 
-export default QuizList; 
+export default QuizList;

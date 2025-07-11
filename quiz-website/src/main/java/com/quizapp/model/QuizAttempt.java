@@ -133,6 +133,11 @@ public class QuizAttempt {
         this.timeTakenMinutes = timeTakenMinutes;
     }
 
+    // Helper method to get username safely
+    public String getUsername() {
+        return user != null ? user.getUsername() : null;
+    }
+
     public void completeAttempt(Integer score) {
         this.score = score;
         this.endTime = LocalDateTime.now();

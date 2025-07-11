@@ -198,6 +198,18 @@ public class QuizTakingController {
             return ResponseEntity.badRequest().body(error);
         }
     }
+    // Top scores in the last day
+    @GetMapping("/top-scores-today/{quizId}")
+    public ResponseEntity<List<QuizAttempt>> getTopScoresToday(
+            @PathVariable Long quizId,
+            @RequestParam(defaultValue = "10") int limit) {
+        try {
+            List<QuizAttempt> topScoresToday = quizTakingService.getTopScoresToday(quizId, limit);
+            return ResponseEntity.ok(topScoresToday);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
     public static class QuestionDto {
         public Long id;

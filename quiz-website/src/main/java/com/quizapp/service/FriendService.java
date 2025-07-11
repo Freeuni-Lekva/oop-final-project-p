@@ -56,8 +56,16 @@ public class FriendService {
         if (requesterUsername.equals(addresseeUsername)) {
             return "You cannot add yourself as a friend.";
         }
-        User requester = userRepository.findByUsername(requesterUsername).orElseThrow(() -> new RuntimeException("User not found: " + requesterUsername));
-        User addressee = userRepository.findByUsername(addresseeUsername).orElseThrow(() -> new RuntimeException("User not found: " + addresseeUsername));
+        User requester = userRepository.findByUsername(requesterUsername)
+                .orElseThrow(() -> new RuntimeException("User not found: " + requesterUsername));
+        User addressee = userRepository.findByUsername(addresseeUsername)
+                .orElseThrow(() -> new RuntimeException("User not found: " + addresseeUsername));
+
+        // ✅ Check if already friends (merged from first version)
+        List<String> requesterFriends = getFriendList(requesterUsername);
+        if (requesterFriends.contains(addresseeUsername)) {
+            return "User is already your friend.";
+        }
 
         // Check if a request from the addressee to the requester already exists
         Optional<FriendRequest> reverseRequest = friendRequestRepository.findByRequesterAndAddressee(addressee, requester);
@@ -111,7 +119,8 @@ public class FriendService {
 
     @Transactional(readOnly = true)
     public List<FriendRequestDTO> getPendingRequests(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found: " + username));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
         return friendRequestRepository.findByAddresseeAndStatus(user, FriendRequest.Status.PENDING)
                 .stream()
                 .map(FriendRequestDTO::new)
@@ -149,6 +158,7 @@ public class FriendService {
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
         User friend = userRepository.findByUsername(friendUsername)
                 .orElseThrow(() -> new RuntimeException("User not found: " + friendUsername));
+
         // Find accepted friendship in either direction
         Optional<FriendRequest> friendship = friendRequestRepository.findByRequesterAndAddressee(user, friend)
                 .filter(fr -> fr.getStatus() == FriendRequest.Status.ACCEPTED);

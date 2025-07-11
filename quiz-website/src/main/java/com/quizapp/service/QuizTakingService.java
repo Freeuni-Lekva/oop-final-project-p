@@ -190,4 +190,10 @@ public class QuizTakingService {
                 .orElseThrow(() -> new RuntimeException("Question not found"));
         return question.isAnswerCorrect(userAnswer);
     }
+
+    public List<QuizAttempt> getTopScoresToday(Long quizId, int limit) {
+        List<QuizAttempt> topScoresToday = quizAttemptRepository.findTopScoresTodayByQuizId(quizId);
+        return topScoresToday.stream().limit(limit).collect(Collectors.toList());
+    }
+
 }

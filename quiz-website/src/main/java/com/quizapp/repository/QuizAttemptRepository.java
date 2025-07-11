@@ -18,17 +18,22 @@ public interface QuizAttemptRepository extends JpaRepository<QuizAttempt, Long> 
     List<QuizAttempt> findByQuizIdOrderByScoreDescTimeTakenMinutesAsc(Long quizId);
 
     // Find attempts by user and quiz
-    List<QuizAttempt> findByUserIdAndQuizIdOrderByStartTimeDesc(Long userId, Long quizId);
+    @Query("SELECT qa FROM QuizAttempt qa JOIN FETCH qa.user WHERE qa.user.id = :userId AND qa.quiz.id = :quizId ORDER BY qa.startTime DESC")
+    List<QuizAttempt> findByUserIdAndQuizIdOrderByStartTimeDesc(@Param("userId") Long userId, @Param("quizId") Long quizId);
 
     // Find completed attempts by user
     List<QuizAttempt> findByUserIdAndIsCompletedTrueOrderByStartTimeDesc(Long userId);
 
     // Find top scores for a quiz
-    @Query("SELECT qa FROM QuizAttempt qa WHERE qa.quiz.id = :quizId AND qa.isCompleted = true AND qa.isPracticeMode = false ORDER BY qa.score DESC, qa.endTime - qa.startTime ASC")
+    @Query("SELECT qa FROM QuizAttempt qa JOIN FETCH qa.user WHERE qa.quiz.id = :quizId AND qa.isCompleted = true AND qa.isPracticeMode = false ORDER BY qa.score DESC, qa.endTime - qa.startTime ASC")
     List<QuizAttempt> findTopScoresByQuizId(@Param("quizId") Long quizId);
 
+    // Find top scores for a quiz in the last day
+    @Query("SELECT qa FROM QuizAttempt qa JOIN FETCH qa.user WHERE qa.quiz.id = :quizId AND qa.isCompleted = true AND qa.isPracticeMode = false AND qa.endTime >= CURRENT_DATE ORDER BY qa.score DESC, qa.endTime - qa.startTime ASC")
+    List<QuizAttempt> findTopScoresTodayByQuizId(@Param("quizId") Long quizId);
+
     // Find recent attempts for a quiz
-    @Query("SELECT qa FROM QuizAttempt qa WHERE qa.quiz.id = :quizId AND qa.isCompleted = true ORDER BY qa.endTime DESC")
+    @Query("SELECT qa FROM QuizAttempt qa JOIN FETCH qa.user WHERE qa.quiz.id = :quizId AND qa.isCompleted = true ORDER BY qa.endTime DESC")
     List<QuizAttempt> findRecentAttemptsByQuizId(@Param("quizId") Long quizId);
 
     // Find best score for a user on a specific quiz
