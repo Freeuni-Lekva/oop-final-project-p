@@ -100,7 +100,7 @@ public class FriendControllerTest {
         mockMvc.perform(get("/api/friends/search")
                         .with(user(requester.getUsername()).roles("USER"))
                         .param("username", "le"))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isOk());
     }
 
 

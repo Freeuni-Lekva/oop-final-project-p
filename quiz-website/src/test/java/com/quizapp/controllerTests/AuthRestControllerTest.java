@@ -1,6 +1,9 @@
 package com.quizapp.controllerTests;
 
 import com.quizapp.model.User;
+import com.quizapp.repository.AnnouncementRepository;
+import com.quizapp.repository.ChallengeRepository;
+import com.quizapp.repository.FriendRequestRepository;
 import com.quizapp.repository.UserRepository;
 import com.quizapp.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,12 +31,24 @@ public class AuthRestControllerTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ChallengeRepository challengeRepository;
+
+    @Autowired
+    private FriendRequestRepository friendRequestRepository;
+    @Autowired
+    private AnnouncementRepository announcementRepository;
+
     private User testUser;
 
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
-
+        // Clear dependent tables first
+        challengeRepository.deleteAll();
+        friendRequestRepository.deleteAll();
+        announcementRepository.deleteAll();
+        
         testUser = new User();
         testUser.setUsername("testuser");
         testUser.setPasswordHash("password");
