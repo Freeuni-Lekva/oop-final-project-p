@@ -28,4 +28,8 @@ public class Option {
     public boolean getIsCorrect() {
         return isCorrect;
     }
+
+    public String getText() {
+        return text;
+    }
 }
