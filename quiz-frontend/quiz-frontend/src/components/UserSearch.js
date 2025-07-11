@@ -44,10 +44,10 @@ const UserSearch = () => {
             </form>
             {message && <p>{message}</p>}
             <ul className="user-search-results">
-                {results.map((username) => (
-                    <li key={username} className="search-result-item">
-                        <span>{username}</span>
-                        <button onClick={() => handleAddFriend(username)} className="add-friend-button">
+                {results.map((user) => (
+                    <li key={user.username} className="search-result-item">
+                        <a href={`/profile/${user.username}`}>{user.username}</a>
+                        <button onClick={() => handleAddFriend(user.username)} className="add-friend-button">
                             Send Request
                         </button>
                     </li>

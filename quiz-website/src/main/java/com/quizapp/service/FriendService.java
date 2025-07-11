@@ -128,10 +128,10 @@ public class FriendService {
     }
 
     @Transactional(readOnly = true)
-    public List<String> searchUsers(String query, String currentUsername) {
+    public List<java.util.Map<String, String>> searchUsers(String query, String currentUsername) {
         return userRepository.findByUsernameContainingIgnoreCaseAndUsernameNot(query, currentUsername)
                 .stream()
-                .map(User::getUsername)
+                .map(user -> java.util.Map.of("username", user.getUsername()))
                 .collect(Collectors.toList());
     }
 
@@ -172,4 +172,21 @@ public class FriendService {
         friendRequestRepository.delete(friendship.get());
         return "Friend removed successfully.";
     }
+
+    public String getFriendStatus(String username1, String username2) {
+        if (username1.equals(username2)) return "SELF";
+        User user1 = userRepository.findByUsername(username1).orElse(null);
+        User user2 = userRepository.findByUsername(username2).orElse(null);
+        if (user1 == null || user2 == null) return "NONE";
+        // Check if they are friends (accepted request in either direction)
+        Optional<FriendRequest> req1 = friendRequestRepository.findByRequesterAndAddressee(user1, user2);
+        Optional<FriendRequest> req2 = friendRequestRepository.findByRequesterAndAddressee(user2, user1);
+        if (req1.isPresent() && req1.get().getStatus() == FriendRequest.Status.ACCEPTED) return "FRIENDS";
+        if (req2.isPresent() && req2.get().getStatus() == FriendRequest.Status.ACCEPTED) return "FRIENDS";
+        // Check if there is a pending request
+        if (req1.isPresent() && req1.get().getStatus() == FriendRequest.Status.PENDING) return "PENDING";
+        if (req2.isPresent() && req2.get().getStatus() == FriendRequest.Status.PENDING) return "PENDING";
+        return "NONE";
+    }
+
 }

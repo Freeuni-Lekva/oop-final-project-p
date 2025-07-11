@@ -1,7 +1,6 @@
 package com.quizapp.controller;
 
 import com.quizapp.dto.FriendRequestDTO;
-import com.quizapp.model.FriendRequest;
 import com.quizapp.service.FriendService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -18,6 +17,7 @@ import java.util.Map;
 @RequestMapping("/api/friends")
 @RequiredArgsConstructor
 public class FriendController {
+
     private final FriendService friendService;
     private static final Logger log = LoggerFactory.getLogger(FriendController.class);
 
@@ -53,10 +53,10 @@ public class FriendController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<String>> searchUsers(@AuthenticationPrincipal UserDetails userDetails, @RequestParam String username) {
+    public ResponseEntity<List<Map<String, String>>> searchUsers(@AuthenticationPrincipal UserDetails userDetails, @RequestParam String username) {
         log.info("Received search request for username: '{}' from user: '{}'", username, userDetails.getUsername());
         try {
-            List<String> users = friendService.searchUsers(username, userDetails.getUsername());
+            List<Map<String, String>> users = friendService.searchUsers(username, userDetails.getUsername());
             log.info("Found {} users matching the search.", users.size());
             return ResponseEntity.ok(users);
         } catch (Exception e) {

@@ -53,8 +53,9 @@ const RemoveFriend = () => {
             {message && <p className="success-message">{message}</p>}
             {result && (
                 <div className="remove-friend-result">
-                    <span>{result}</span>
-                    <button onClick={handleRemove} className="accept-request-button" style={{backgroundColor: '#f44336', marginLeft: '8px'}}>
+                    <a href={`/profile/${result}`}>{result}</a>
+                    <button onClick={handleRemove} className="accept-request-button"
+                            style={{backgroundColor: '#f44336', marginLeft: '8px'}}>
                         Remove from Friend List
                     </button>
                 </div>

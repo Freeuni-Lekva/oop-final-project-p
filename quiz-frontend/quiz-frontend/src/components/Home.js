@@ -191,6 +191,15 @@ const Home = () => {
                 <h2>{message || 'Welcome!'}</h2>
                 {username && <p>Hello, <b>{username}</b>!</p>}
                 {username && (
+                    <button
+                        className="profile-button"
+                        onClick={() => window.location.href = `/profile/${username}`}
+                        style={{ marginBottom: '1rem' }}
+                    >
+                        My Profile
+                    </button>
+                )}
+                {username && (
                     <button onClick={() => navigate('/create-quiz')} style={{ marginTop: '16px' }}>
                         Create a New Quiz
                     </button>
