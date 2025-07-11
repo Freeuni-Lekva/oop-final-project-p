@@ -43,11 +43,12 @@ public class AuthRestControllerTest {
 
     @BeforeEach
     void setUp() {
-        userRepository.deleteAll();
+
         // Clear dependent tables first
         challengeRepository.deleteAll();
         friendRequestRepository.deleteAll();
         announcementRepository.deleteAll();
+        userRepository.deleteAll();
         
         testUser = new User();
         testUser.setUsername("testuser");
