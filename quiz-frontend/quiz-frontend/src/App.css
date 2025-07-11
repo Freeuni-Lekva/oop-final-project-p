@@ -1,3 +1,4 @@
+/* ===== General App Layout ===== */
 .App {
   text-align: center;
 }
@@ -7,12 +8,19 @@
   pointer-events: none;
 }
 
+/* Optional spinning logo animation */
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
 }
 
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* App header style */
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -28,34 +36,34 @@
   color: #61dafb;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
+/* ===== Base Body Style ===== */
 body {
-  background: #f6f8fa;
+  background: #653d8e; /* purple background */
   font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
   margin: 0;
   padding: 0;
 }
 
+/* ===== Auth Box (Used in Login, Register, CreateQuiz) ===== */
 .auth-container {
-  max-width: 400px;
+  max-width: 700px; /* Wider for CreateQuiz page */
   margin: 60px auto;
-  background: #fff;
+  background: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-  padding: 32px 28px 24px 28px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  padding: 32px 40px 32px 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+/* Narrow auth container for login/register pages */
+.auth-container-narrow {
+  max-width: 400px;
+  padding: 32px 28px 24px 28px;
+}
+
+/* ===== Auth Form Fields ===== */
 .auth-form {
   width: 100%;
   display: flex;
@@ -76,9 +84,27 @@ body {
 .auth-form input:focus {
   border: 1.5px solid #6366f1;
   outline: none;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.8); /* Matches first file */
 }
 
+.auth-form textarea,
+.auth-form select {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #f9fafb;
+  transition: border 0.2s;
+}
+
+.auth-form textarea:focus,
+.auth-form select:focus {
+  border: 1.5px solid #6366f1;
+  outline: none;
+  background: rgba(255, 255, 255, 0.9); /* Retains second file's style */
+}
+
+/* ===== Auth Form Buttons ===== */
 .auth-form button {
   padding: 10px 0;
   background: #6366f1;
@@ -95,6 +121,7 @@ body {
   background: #4f46e5;
 }
 
+/* ===== Link-style Button ===== */
 .auth-link {
   background: none;
   border: none;
@@ -110,6 +137,7 @@ body {
   color: #4f46e5;
 }
 
+/* ===== Error Message Box ===== */
 .auth-error {
   color: #e11d48;
   background: #fef2f2;
@@ -121,6 +149,7 @@ body {
   font-size: 0.98em;
 }
 
+/* ===== Headings / Paragraphs ===== */
 h2 {
   margin-bottom: 18px;
   color: #22223b;
@@ -133,4 +162,181 @@ p {
   color: #6b7280;
   font-size: 1em;
   margin-top: 10px;
+}
+
+/* ===== Admin Dashboard Styling ===== */
+.admin-dashboard {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.admin-dashboard h2 {
+  text-align: center;
+  color: #4f46e5;
+  margin-bottom: 20px;
+}
+
+.admin-dashboard table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.admin-dashboard th,
+.admin-dashboard td {
+  border: 1px solid #e5e7eb;
+  padding: 10px;
+  text-align: left;
+}
+
+.admin-dashboard th {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.admin-dashboard td {
+  color: #1f2937;
+}
+
+.admin-dashboard button {
+  padding: 6px 10px;
+  background-color: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 8px;
+  font-size: 0.9rem;
+}
+
+.admin-dashboard button:hover {
+  background-color: #4f46e5;
+}
+
+/* ===== Box used on Home Page ===== */
+.main-box {
+  background: #ffffff;
+  color: #22223b;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+}
+
+/* ===== Announcement Popup ===== */
+.announcement-box {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 300px;
+  background: #ffffff;
+  color: #1f2937;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.announcement-box h3 {
+  margin-top: 0;
+  color: #4f46e5;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.announcement-box ul {
+  list-style-type: disc;
+  padding-left: 18px;
+  margin: 0;
+}
+
+.announcement-box li {
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.announcement-box small {
+  display: block;
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+/* ===== Question Box for CreateQuiz Page ===== */
+.question-box {
+  border: 1px solid #e5e7eb;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  background: #f9fafb;
+}
+
+.question-top-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+.question-type-select {
+  min-width: 180px;
+  padding: 8px;
+}
+
+.question-header-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.helper-text {
+  color: #6b7280;
+  font-size: 0.9em;
+  margin-bottom: 10px;
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* space between text, checkbox, and button */
+  margin-bottom: 8px;
+}
+
+.correct-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.remove-option-btn {
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+}
+
+/* Add spacing between inner inputs/selects */
+.question-box input,
+.question-box select,
+.question-box textarea {
+  margin-bottom: 12px;
+}
+
+/* Add spacing between correct answer fields */
+.correct-answer-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 5px;
 }

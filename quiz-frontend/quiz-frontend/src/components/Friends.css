@@ -1,0 +1,219 @@
+/* Friends.css */
+
+.top-right-icons {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    display: flex;
+    gap: 16px;
+    z-index: 1100;
+}
+
+.friends-icon-button, .messages-icon-button {
+    background-color: #6a1b9a;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    font-size: 26px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.2s ease-in-out, background 0.2s;
+    outline: none;
+}
+
+.friends-icon-button:hover, .messages-icon-button:hover {
+    transform: scale(1.08);
+    background-color: #512e7e;
+}
+
+.friends-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+}
+
+.friends-modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.friends-modal-close-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #888;
+}
+
+.friends-modal-tabs {
+    display: flex;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 20px;
+}
+
+.friends-modal-tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-size: 16px;
+    font-weight: 500;
+    color: #999;
+    position: relative;
+}
+
+.friends-modal-tab.active {
+    color: #6a1b9a;
+    border-bottom: 2px solid #6a1b9a;
+}
+
+.friends-list, .friend-requests-list, .user-search-results {
+    list-style: none;
+    padding: 0;
+}
+
+.friend-item, .request-item, .search-result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 8px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.accept-request-button, .add-friend-button {
+    background-color: #4caf50; /* Green */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.accept-request-button:hover, .add-friend-button:hover {
+    background-color: #45a049;
+}
+
+.notification-badge {
+    background-color: #f44336; /* Red */
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+.request-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 8px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.request-username {
+    flex: 0 0 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.top-left-signout {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    z-index: 1100;
+}
+
+.signout-icon-button {
+    background-color: #e11d48;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    font-size: 22px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.2s, background 0.2s;
+    outline: none;
+}
+
+.signout-icon-button:hover {
+    background-color: #b91c1c;
+    transform: scale(1.08);
+}
+
+.signout-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1200;
+}
+
+.signout-modal-content {
+    background: #fff;
+    padding: 28px 32px 20px 32px;
+    border-radius: 12px;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.22);
+    min-width: 260px;
+    text-align: center;
+}
+
+.cancel-signout-button, .confirm-signout-button {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.cancel-signout-button {
+    background: #e5e7eb;
+    color: #22223b;
+}
+
+.cancel-signout-button:hover {
+    background: #cbd5e1;
+}
+
+.confirm-signout-button {
+    background: #e11d48;
+    color: #fff;
+}
+
+.confirm-signout-button:hover {
+    background: #b91c1c;
+} 
