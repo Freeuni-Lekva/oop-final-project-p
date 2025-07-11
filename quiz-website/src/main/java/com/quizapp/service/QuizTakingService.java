@@ -38,6 +38,12 @@ public class QuizTakingService {
         List<QuizAttempt> incompleteAttempts = quizAttemptRepository.findByUserIdAndIsCompletedFalse(user.getId());
         for (QuizAttempt attempt : incompleteAttempts) {
             if (attempt.getQuiz().getId().equals(quizId)) {
+                // If no answers exist for this attempt, reset startTime
+                List<Answer> answers = answerRepository.findByQuizAttemptIdOrderByQuestionNumber(attempt.getId());
+                if (answers == null || answers.isEmpty()) {
+                    attempt.setStartTime(java.time.LocalDateTime.now());
+                    quizAttemptRepository.save(attempt);
+                }
                 return attempt;
             }
         }

@@ -42,4 +42,11 @@ public interface QuizAttemptRepository extends JpaRepository<QuizAttempt, Long> 
 
     // Find incomplete attempts for resuming quizzes
     List<QuizAttempt> findByUserIdAndIsCompletedFalse(Long userId);
+
+    // Find top N most taken quizzes (by number of completed, non-practice attempts)
+    @Query("SELECT qa.quiz.id, COUNT(qa.id) as attemptCount FROM QuizAttempt qa WHERE qa.isCompleted = true AND qa.isPracticeMode = false GROUP BY qa.quiz.id ORDER BY attemptCount DESC")
+    List<Object[]> findTopMostTakenQuizzes(org.springframework.data.domain.Pageable pageable);
+
+    long countByQuizId(Long quizId);
+    long countByQuizIdAndIsCompletedTrueAndIsPracticeModeFalse(Long quizId);
 }

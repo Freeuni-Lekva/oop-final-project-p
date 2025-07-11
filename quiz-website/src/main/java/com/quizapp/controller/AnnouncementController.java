@@ -37,4 +37,17 @@ public class AnnouncementController {
         Announcement saved = announcementRepository.save(announcement);
         return ResponseEntity.ok(saved);
     }
+
+    // Admin-only endpoint to delete an announcement
+    @DeleteMapping("/admin/announcements/{id}")
+    public ResponseEntity<?> deleteAnnouncement(@PathVariable Long id, Authentication authentication) {
+        if (!SecurityUtils.isAdmin(authentication)) {
+            return ResponseEntity.status(403).body("Only admins can delete announcements.");
+        }
+        if (!announcementRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        announcementRepository.deleteById(id);
+        return ResponseEntity.ok("Announcement deleted.");
+    }
 }

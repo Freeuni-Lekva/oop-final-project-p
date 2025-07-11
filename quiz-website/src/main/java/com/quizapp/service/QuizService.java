@@ -6,6 +6,9 @@ import com.quizapp.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.PageRequest;
+import java.util.Map;
+import java.util.HashMap;
 
 import java.util.List;
 
@@ -35,5 +38,31 @@ public class QuizService {
     @Transactional
     public void deleteQuiz(Long id) {
         quizRepository.deleteById(id);
+    }
+
+    // Get top N most taken quizzes (by number of completed, non-practice attempts)
+    public List<Map<String, Object>> getTopMostTakenQuizzes(int n, com.quizapp.repository.QuizAttemptRepository quizAttemptRepository) {
+        var results = quizAttemptRepository.findTopMostTakenQuizzes(PageRequest.of(0, n));
+        List<Long> quizIds = new java.util.ArrayList<>();
+        Map<Long, Long> attemptCounts = new HashMap<>();
+        for (Object[] row : results) {
+            Long quizId = ((Number) row[0]).longValue();
+            Long count = ((Number) row[1]).longValue();
+            quizIds.add(quizId);
+            attemptCounts.put(quizId, count);
+        }
+        List<Quiz> quizzes = quizRepository.findByIdIn(quizIds);
+        // Preserve order and attach attempt counts
+        List<Map<String, Object>> popular = new java.util.ArrayList<>();
+        for (Long id : quizIds) {
+            Quiz quiz = quizzes.stream().filter(q -> q.getId().equals(id)).findFirst().orElse(null);
+            if (quiz != null) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("quiz", quiz);
+                map.put("attemptCount", attemptCounts.get(id));
+                popular.add(map);
+            }
+        }
+        return popular;
     }
 }

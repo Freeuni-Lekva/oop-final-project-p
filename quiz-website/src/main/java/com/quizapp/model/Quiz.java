@@ -25,7 +25,6 @@ public class Quiz {
 
     @ManyToOne
     @JoinColumn(name = "created_by")
-    @JsonIgnore
     private User createdBy;
 
     private LocalDateTime createdAt;

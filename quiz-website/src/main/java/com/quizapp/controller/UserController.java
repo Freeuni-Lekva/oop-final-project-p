@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -44,5 +45,11 @@ public class UserController {
     public ResponseEntity<List<QuizHistoryItemDTO>> getQuizHistory(@PathVariable String username) {
         List<QuizHistoryItemDTO> history = userService.getQuizHistoryForUser(username);
         return ResponseEntity.ok(history);
+    }
+
+    @GetMapping("/{username}/achievements")
+    public ResponseEntity<List<Map<String, Object>>> getUserAchievements(@PathVariable String username) {
+        List<Map<String, Object>> achievements = userService.getUserAchievements(username);
+        return ResponseEntity.ok(achievements);
     }
 }

@@ -9,6 +9,7 @@ import com.quizapp.repository.QuizAttemptRepository;
 import com.quizapp.repository.AnswerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.core.Authentication;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -60,6 +62,12 @@ public class QuizController {
                 .toList();
     }
 
+    // Endpoint to get top 5 most taken quizzes
+    @GetMapping("/popular")
+    public List<Map<String, Object>> getPopularQuizzes() {
+        return quizService.getTopMostTakenQuizzes(5, quizAttemptRepository);
+    }
+
     @DeleteMapping("/{id}")
     public void deleteQuiz(@PathVariable Long id, Authentication authentication) {
         if (!SecurityUtils.isAdmin(authentication)) {
@@ -73,6 +81,20 @@ public class QuizController {
         }
         // Delete the quiz itself (questions/options cascade)
         quizService.deleteQuiz(id);
+    }
+
+    @DeleteMapping("/{id}/clear-history")
+    public ResponseEntity<?> clearQuizHistory(@PathVariable Long id, Authentication authentication) {
+        if (!SecurityUtils.isAdmin(authentication)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only admins can clear quiz history");
+        }
+        // Delete all quiz attempts and answers for this quiz, but not the quiz itself
+        var attempts = quizAttemptRepository.findByQuizIdOrderByScoreDescTimeTakenMinutesAsc(id);
+        for (var attempt : attempts) {
+            answerRepository.deleteAll(answerRepository.findByQuizAttemptIdOrderByQuestionNumber(attempt.getId()));
+            quizAttemptRepository.delete(attempt);
+        }
+        return ResponseEntity.ok("Quiz history cleared.");
     }
 
     public static class QuizSummaryDto {

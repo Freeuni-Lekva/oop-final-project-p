@@ -22,6 +22,7 @@ const QuizSummary = () => {
     const [selectedFriend, setSelectedFriend] = useState('');
     const [challenging, setChallenging] = useState(false);
     const [topScoresToday, setTopScoresToday] = useState([]);
+    const [clearingHistory, setClearingHistory] = useState(false);
 
     useEffect(() => {
         fetch(`http://localhost:8081/api/quizzes/${quizId}`, { credentials: 'include' })
@@ -135,9 +136,26 @@ const QuizSummary = () => {
         }
     };
 
+    const handleDeleteHistory = async () => {
+        if (!window.confirm('Are you sure you want to delete all history for this quiz? This will remove all attempts, but the quiz will remain available.')) return;
+        setClearingHistory(true);
+        try {
+            const response = await fetch(`http://localhost:8081/api/quizzes/${quizId}/clear-history`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+            if (!response.ok) throw new Error(await response.text());
+            alert('Quiz history cleared successfully!');
+        } catch (err) {
+            alert('Failed to clear quiz history: ' + err.message);
+        } finally {
+            setClearingHistory(false);
+        }
+    };
+
     const fetchFriends = async () => {
         try {
-            const response = await fetch(`http://localhost:8081/api/friends/list/${currentUsername}`, {
+            const response = await fetch('http://localhost:8081/api/friends/list', {
                 credentials: 'include'
             });
             if (response.ok) {
@@ -195,11 +213,11 @@ const QuizSummary = () => {
                 <div className="quiz-summary-title">{quiz.title}</div>
                 <div className="quiz-summary-meta">{quiz.description}</div>
                 <div className="quiz-summary-meta">
-                    Created by: {creatorId ? (
-                    <a href={`/user/${creatorId}`} style={{ color: '#2563eb', textDecoration: 'underline' }}>{quiz.createdBy}</a>
-                ) : (
-                    <b>{quiz.createdBy || 'Unknown'}</b>
-                )}
+                    Created by: {quiz.createdBy ? (
+                        <a href={`/profile/${quiz.createdBy}`} style={{ color: '#2563eb', textDecoration: 'underline' }}>{quiz.createdBy}</a>
+                    ) : (
+                        <b>{quiz.createdBy || 'Unknown'}</b>
+                    )}
                 </div>
             </div>
             {/* Stats */}
@@ -301,6 +319,16 @@ const QuizSummary = () => {
                         {deleting ? 'Deleting...' : 'Delete Quiz'}
                     </button>
                 )}
+                {clearingHistory && (
+                    <button className="quiz-btn quiz-btn-secondary" disabled>
+                        Clearing...
+                    </button>
+                )}
+                {!clearingHistory && (
+                    <button className="quiz-btn quiz-btn-secondary" onClick={handleDeleteHistory}>
+                        Delete History
+                    </button>
+                )}
             </div>
             {isChallengeModalOpen && (
                 <div className="modal-overlay">
@@ -314,8 +342,8 @@ const QuizSummary = () => {
                         >
                             <option value="">Select a friend...</option>
                             {friends.map(friend => (
-                                <option key={friend.id} value={friend.username}>
-                                    {friend.username}
+                                <option key={friend} value={friend}>
+                                    {friend}
                                 </option>
                             ))}
                         </select>

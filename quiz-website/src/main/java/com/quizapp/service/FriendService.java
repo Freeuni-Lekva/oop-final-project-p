@@ -14,6 +14,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import com.quizapp.dto.FriendRequestDTO;
+import com.quizapp.repository.QuizRepository;
+import com.quizapp.repository.QuizAttemptRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,10 @@ public class FriendService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final FriendRequestRepository friendRequestRepository;
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.quizapp.repository.QuizRepository quizRepository;
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.quizapp.repository.QuizAttemptRepository quizAttemptRepository;
 
     @Transactional
     public void addFriend(String username, String friendUsername) {
@@ -187,6 +193,55 @@ public class FriendService {
         if (req1.isPresent() && req1.get().getStatus() == FriendRequest.Status.PENDING) return "PENDING";
         if (req2.isPresent() && req2.get().getStatus() == FriendRequest.Status.PENDING) return "PENDING";
         return "NONE";
+    }
+
+    @Transactional(readOnly = true)
+    public List<User> getFriendUsers(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        List<FriendRequest> accepted = friendRequestRepository.findAcceptedFriendships(user, FriendRequest.Status.ACCEPTED);
+        return accepted.stream()
+                .map(fr -> fr.getRequester().getUsername().equals(username) ? fr.getAddressee() : fr.getRequester())
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<java.util.Map<String, Object>> getFriendStatsWithQuizInfo(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        List<FriendRequest> accepted = friendRequestRepository.findAcceptedFriendships(user, FriendRequest.Status.ACCEPTED);
+        List<User> friends = accepted.stream()
+                .map(fr -> fr.getRequester().getUsername().equals(username) ? fr.getAddressee() : fr.getRequester())
+                .collect(Collectors.toList());
+        List<java.util.Map<String, Object>> stats = new java.util.ArrayList<>();
+        for (User friend : friends) {
+            // Quizzes taken
+            var attempts = quizAttemptRepository.findByUserIdAndIsCompletedTrueOrderByStartTimeDesc(friend.getId());
+            long numQuizzesTaken = attempts.size();
+            double avgPercent = attempts.stream().mapToDouble(a -> a.getPercentage() != null ? a.getPercentage() : 0.0).average().orElse(0.0);
+            // Quizzes created
+            var createdQuizzes = quizRepository.findByCreatedBy(friend);
+            int numCreated = createdQuizzes.size();
+            // Most popular quiz
+            String mostPopularQuizTitle = null;
+            long mostPopularQuizAttempts = 0;
+            for (var quiz : createdQuizzes) {
+                long count = quizAttemptRepository.countByQuizIdAndIsCompletedTrueAndIsPracticeModeFalse(quiz.getId());
+                if (count > mostPopularQuizAttempts) {
+                    mostPopularQuizAttempts = count;
+                    mostPopularQuizTitle = quiz.getTitle();
+                }
+            }
+            java.util.Map<String, Object> stat = new java.util.HashMap<>();
+            stat.put("username", friend.getUsername());
+            stat.put("numQuizzes", numQuizzesTaken);
+            stat.put("avgPercent", Math.round(avgPercent * 10.0) / 10.0);
+            stat.put("numCreated", numCreated);
+            stat.put("mostPopularQuizTitle", mostPopularQuizTitle);
+            stat.put("mostPopularQuizAttempts", mostPopularQuizAttempts);
+            stats.add(stat);
+        }
+        return stats;
     }
 
 }

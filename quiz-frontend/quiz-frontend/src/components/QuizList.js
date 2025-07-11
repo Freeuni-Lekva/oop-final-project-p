@@ -66,6 +66,20 @@ const QuizList = () => {
         }
     };
 
+    const handleDeleteHistory = async (quizId) => {
+        if (!window.confirm('Are you sure you want to delete all history for this quiz? This will remove all attempts, but the quiz will remain available.')) return;
+        try {
+            const res = await fetch(`http://localhost:8081/api/quizzes/${quizId}/clear-history`, {
+                method: 'DELETE',
+                credentials: 'include',
+            });
+            if (!res.ok) throw new Error(await res.text());
+            alert('Quiz history cleared successfully!');
+        } catch (err) {
+            alert('Failed to clear quiz history: ' + err.message);
+        }
+    };
+
     const displayQuizzes = useTestQuizzes ? TEST_QUIZZES : quizzes;
 
     return (
@@ -84,9 +98,14 @@ const QuizList = () => {
                                 Check it out
                             </button>
                             {role === 'ROLE_ADMIN' && !useTestQuizzes && (
-                                <button className="quiz-btn quiz-btn-danger" onClick={() => handleDelete(quiz.id)}>
-                                    Delete
-                                </button>
+                                <>
+                                    <button className="quiz-btn quiz-btn-danger" onClick={() => handleDelete(quiz.id)}>
+                                        Delete
+                                    </button>
+                                    <button className="quiz-btn quiz-btn-secondary" onClick={() => handleDeleteHistory(quiz.id)}>
+                                        Delete History
+                                    </button>
+                                </>
                             )}
                         </div>
                     </li>

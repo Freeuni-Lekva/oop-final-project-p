@@ -2,6 +2,8 @@ package com.quizapp.controller;
 
 import com.quizapp.dto.FriendRequestDTO;
 import com.quizapp.service.FriendService;
+import com.quizapp.repository.QuizAttemptRepository;
+import com.quizapp.model.User;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/friends")
@@ -19,6 +22,7 @@ import java.util.Map;
 public class FriendController {
 
     private final FriendService friendService;
+    private final QuizAttemptRepository quizAttemptRepository;
     private static final Logger log = LoggerFactory.getLogger(FriendController.class);
 
     @PostMapping("/request")
@@ -84,5 +88,12 @@ public class FriendController {
         } else {
             return ResponseEntity.badRequest().body(Map.of("error", result));
         }
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<List<Map<String, Object>>> getFriendStats(@AuthenticationPrincipal UserDetails userDetails) {
+        String username = userDetails.getUsername();
+        List<Map<String, Object>> stats = friendService.getFriendStatsWithQuizInfo(username);
+        return ResponseEntity.ok(stats);
     }
 }
