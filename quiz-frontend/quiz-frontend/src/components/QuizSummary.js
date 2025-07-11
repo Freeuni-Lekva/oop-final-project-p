@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import './Quiz.css';
 
 const QuizSummary = () => {
     const { quizId } = useParams();
@@ -21,6 +20,7 @@ const QuizSummary = () => {
     const [friends, setFriends] = useState([]);
     const [selectedFriend, setSelectedFriend] = useState('');
     const [challenging, setChallenging] = useState(false);
+    const [fetchingFriends, setFetchingFriends] = useState(false);
     const [topScoresToday, setTopScoresToday] = useState([]);
     const [clearingHistory, setClearingHistory] = useState(false);
 
@@ -32,7 +32,7 @@ const QuizSummary = () => {
             })
             .then(async (quizData) => {
                 setQuiz(quizData);
-                // Fetch creator ID for hotlink
+                
                 if (quizData.createdBy) {
                     const creatorRes = await fetch(`http://localhost:8081/api/auth/user/${quizData.createdBy}`);
                     if (creatorRes.ok) {
@@ -40,7 +40,7 @@ const QuizSummary = () => {
                         setCreatorId(creator.id);
                     }
                 }
-                // Fetch current user ID and username
+                
                 const homeRes = await fetch('http://localhost:8081/api/home', { credentials: 'include' });
                 if (homeRes.ok) {
                     const homeData = await homeRes.json();
@@ -50,7 +50,7 @@ const QuizSummary = () => {
                         if (userRes.ok) {
                             const user = await userRes.json();
                             setUserId(user.id);
-                            // Fetch user history for this quiz
+                            
                             fetch(`http://localhost:8081/api/quiz-taking/history/user/${user.id}/quiz/${quizId}`)
                                 .then(res => {
                                     if (!res.ok) throw new Error('Failed to fetch user history');
@@ -64,50 +64,28 @@ const QuizSummary = () => {
                         }
                     }
                 }
-                // Fetch top scores (all time)
-                fetch(`http://localhost:8081/api/quiz-taking/top-scores/${quizId}?limit=5`)
-                    .then(res => {
-                        if (!res.ok) throw new Error('Failed to fetch top scores');
-                        return res.json();
-                    })
-                    .then(data => setTopScores(Array.isArray(data) ? data : []))
-                    .catch(err => {
-                        console.error('Top scores fetch error:', err);
-                        setTopScores([]);
-                    });
-                // Fetch top scores today
-                fetch(`http://localhost:8081/api/quiz-taking/top-scores-today/${quizId}?limit=5`)
-                    .then(res => {
-                        if (!res.ok) throw new Error('Failed to fetch top scores today');
-                        return res.json();
-                    })
-                    .then(data => setTopScoresToday(Array.isArray(data) ? data : []))
-                    .catch(err => {
-                        console.error('Top scores today fetch error:', err);
-                        setTopScoresToday([]);
-                    });
-                // Fetch recent attempts (last 15 min)
-                fetch(`http://localhost:8081/api/quiz-taking/recent/${quizId}?limit=5`)
-                    .then(res => {
-                        if (!res.ok) throw new Error('Failed to fetch recent attempts');
-                        return res.json();
-                    })
-                    .then(data => setRecentScores(Array.isArray(data) ? data : []))
-                    .catch(err => {
-                        console.error('Recent attempts fetch error:', err);
-                        setRecentScores([]);
-                    });
-                // Fetch stats
-                fetch(`http://localhost:8081/api/quiz-taking/statistics/${quizId}`)
-                    .then(res => {
-                        if (!res.ok) throw new Error('Failed to fetch statistics');
-                        return res.json();
-                    })
-                    .then(setStats)
-                    .catch(err => {
-                        console.error('Statistics fetch error:', err);
-                        setStats(null);
-                    });
+                
+                // Fetch all data in parallel
+                Promise.all([
+                    fetch(`http://localhost:8081/api/quiz-taking/top-scores/${quizId}?limit=5`),
+                    fetch(`http://localhost:8081/api/quiz-taking/top-scores-today/${quizId}?limit=5`),
+                    fetch(`http://localhost:8081/api/quiz-taking/recent/${quizId}?limit=5`),
+                    fetch(`http://localhost:8081/api/quiz-taking/statistics/${quizId}`)
+                ]).then(([topRes, todayRes, recentRes, statsRes]) => {
+                    return Promise.all([
+                        topRes.json(),
+                        todayRes.json(),
+                        recentRes.json(),
+                        statsRes.json()
+                    ]);
+                }).then(([topData, todayData, recentData, statsData]) => {
+                    setTopScores(Array.isArray(topData) ? topData : []);
+                    setTopScoresToday(Array.isArray(todayData) ? todayData : []);
+                    setRecentScores(Array.isArray(recentData) ? recentData : []);
+                    setStats(statsData);
+                }).catch(err => {
+                    console.error('Data fetch error:', err);
+                });
             })
             .catch(() => setError('Failed to load quiz.'));
     }, [quizId]);
@@ -154,17 +132,44 @@ const QuizSummary = () => {
     };
 
     const fetchFriends = async () => {
+        setFetchingFriends(true);
         try {
+            console.log('Fetching friends...');
             const response = await fetch('http://localhost:8081/api/friends/list', {
                 credentials: 'include'
             });
+            
             if (response.ok) {
                 const friendsData = await response.json();
-                setFriends(Array.isArray(friendsData) ? friendsData : []);
+                console.log('Friends data received:', friendsData);
+                
+                // The backend returns List<String> of usernames
+                let processedFriends = [];
+                if (Array.isArray(friendsData)) {
+                    // Convert string usernames to objects with username property
+                    processedFriends = friendsData.map(username => ({ username }));
+                } else if (friendsData && Array.isArray(friendsData.friends)) {
+                    processedFriends = friendsData.friends.map(username => ({ username }));
+                } else if (friendsData && Array.isArray(friendsData.users)) {
+                    processedFriends = friendsData.users.map(username => ({ username }));
+                } else if (typeof friendsData === 'object' && friendsData !== null) {
+                    // If it's an object with usernames as keys
+                    processedFriends = Object.keys(friendsData).map(username => ({ username }));
+                }
+                
+                console.log('Processed friends:', processedFriends);
+                setFriends(processedFriends);
+            } else {
+                console.error('Failed to fetch friends:', response.status, response.statusText);
+                const errorText = await response.text();
+                console.error('Error response:', errorText);
+                setFriends([]);
             }
         } catch (err) {
             console.error('Failed to fetch friends:', err);
             setFriends([]);
+        } finally {
+            setFetchingFriends(false);
         }
     };
 
@@ -204,160 +209,313 @@ const QuizSummary = () => {
         }
     };
 
-    if (error) return <div>{error}</div>;
-    if (!quiz) return <div>Loading...</div>;
+    if (error) {
+        return (
+            <div className="alert alert-error">
+                {error}
+            </div>
+        );
+    }
+
+    if (!quiz) {
+        return (
+            <div className="text-center">
+                <div className="loading"></div>
+                <p>Loading quiz...</p>
+            </div>
+        );
+    }
 
     return (
-        <div className="quiz-summary-container">
-            <div className="quiz-summary-header">
-                <div className="quiz-summary-title">{quiz.title}</div>
-                <div className="quiz-summary-meta">{quiz.description}</div>
-                <div className="quiz-summary-meta">
-                    Created by: {quiz.createdBy ? (
-                        <a href={`/profile/${quiz.createdBy}`} style={{ color: '#2563eb', textDecoration: 'underline' }}>{quiz.createdBy}</a>
-                    ) : (
-                        <b>{quiz.createdBy || 'Unknown'}</b>
-                    )}
+        <div className="fade-in">
+            {/* Quiz Header */}
+            <div className="card mb-4">
+                <div className="card-body">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div style={{ flex: 1 }}>
+                            <h1 style={{ 
+                                fontSize: 'var(--font-size-3xl)', 
+                                fontWeight: 700, 
+                                color: 'var(--text-primary)',
+                                marginBottom: 'var(--spacing-sm)'
+                            }}>
+                                {quiz.title}
+                            </h1>
+                            <p style={{ 
+                                fontSize: 'var(--font-size-lg)', 
+                                color: 'var(--text-secondary)',
+                                marginBottom: 'var(--spacing-md)'
+                            }}>
+                                {quiz.description}
+                            </p>
+                            <div style={{ display: 'flex', gap: 'var(--spacing-md)', flexWrap: 'wrap' }}>
+                                <span className="badge badge-primary">
+                                    {quiz.questions?.length || 0} Questions
+                                </span>
+                                <span className="badge badge-success">
+                                    Created by {quiz.createdBy}
+                                </span>
+                                {quiz.createdAt && (
+                                    <span className="badge badge-warning">
+                                        {new Date(quiz.createdAt).toLocaleDateString()}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
+                            <button
+                                className="btn btn-primary"
+                                onClick={() => navigate(`/quiz/${quizId}`)}
+                            >
+                                🎯 Take Quiz
+                            </button>
+                            <button
+                                className="btn btn-secondary"
+                                onClick={() => {
+                                    fetchFriends();
+                                    setChallengeModalOpen(true);
+                                }}
+                            >
+                                ⚡ Challenge Friend
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            {/* Stats */}
-            {stats && (
-                <div className="quiz-summary-meta" style={{ marginBottom: 16 }}>
-                    <b>Stats:</b> Avg Score: {stats.averageScore}%, Avg Time: {stats.averageTime} min, Attempts: {stats.totalAttempts}, Highest Score: {stats.highestScore}
+
+            {/* Quiz Image */}
+            {quiz.imageUrl && (
+                <div className="card mb-4">
+                    <div className="card-body text-center">
+                        <img 
+                            src={quiz.imageUrl} 
+                            alt={quiz.title}
+                            style={{
+                                maxWidth: '100%',
+                                maxHeight: '400px',
+                                borderRadius: 'var(--radius-lg)',
+                                boxShadow: 'var(--shadow-md)'
+                            }}
+                            onError={(e) => {
+                                e.target.style.display = 'none';
+                            }}
+                        />
+                    </div>
                 </div>
             )}
-            {/* User History */}
-            <div className="quiz-summary-section">
-                <h4>Your Past Performance</h4>
-                <div style={{ margin: '8px 0' }}>
-                    <label>Sort by: </label>
-                    <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={{ marginLeft: '8px', padding: '4px 8px', borderRadius: '4px', border: '1px solid #cbd5e1' }}>
-                        <option value="date">Date</option>
-                        <option value="percent">Percent Correct</option>
-                        <option value="time">Time Taken</option>
-                    </select>
+
+            {/* Statistics Grid */}
+            {stats && (
+                <div className="stats-grid mb-4">
+                    <div className="stat-card">
+                        <div className="stat-number">{stats.totalAttempts}</div>
+                        <div className="stat-label">Total Attempts</div>
+                    </div>
+                    <div className="stat-card">
+                        <div className="stat-number">{stats.averageScore}%</div>
+                        <div className="stat-label">Average Score</div>
+                    </div>
+                    <div className="stat-card">
+                        <div className="stat-number">{stats.highestScore}</div>
+                        <div className="stat-label">Highest Score</div>
+                    </div>
+                    <div className="stat-card">
+                        <div className="stat-number">{stats.averageTime} min</div>
+                        <div className="stat-label">Avg Time</div>
+                    </div>
                 </div>
-                <ul style={{ padding: 0, listStyle: 'none' }}>
-                    {(Array.isArray(userHistory) ? userHistory : []).sort((a, b) => {
-                        if (sortBy === 'percent') return b.percentage - a.percentage;
-                        if (sortBy === 'time') return (a.timeTakenMinutes || 0) - (b.timeTakenMinutes || 0);
-                        return new Date(b.startTime) - new Date(a.startTime);
-                    }).map((attempt, i) => (
-                        <li key={attempt.id} style={{ marginBottom: 6 }}>
-                            {new Date(attempt.startTime).toLocaleString()} — {attempt.score || 0}/{attempt.totalQuestions} ({Math.round(attempt.percentage || 0)}%) — {attempt.timeTakenMinutes !== null ? attempt.timeTakenMinutes : 'N/A'} min
-                        </li>
-                    ))}
-                    {(!Array.isArray(userHistory) || userHistory.length === 0) && (
-                        <li style={{ color: '#666', fontStyle: 'italic' }}>No previous attempts</li>
+            )}
+
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* Left Column - Leaderboards */}
+                <div>
+                    {/* Top Scores All Time */}
+                    <div className="card mb-4">
+                        <div className="card-header">
+                            <h3 className="card-title">🏆 Top Scores (All Time)</h3>
+                        </div>
+                        <div className="card-body">
+                            <LeaderboardTable scores={topScores} />
+                        </div>
+                    </div>
+
+                    {/* Top Scores Today */}
+                    <div className="card mb-4">
+                        <div className="card-header">
+                            <h3 className="card-title">🔥 Top Scores (Today)</h3>
+                        </div>
+                        <div className="card-body">
+                            <LeaderboardTable scores={topScoresToday} />
+                        </div>
+                    </div>
+
+                    {/* Recent Attempts */}
+                    <div className="card">
+                        <div className="card-header">
+                            <h3 className="card-title">🕒 Recent Attempts</h3>
+                        </div>
+                        <div className="card-body">
+                            <RecentAttemptsTable attempts={recentScores} />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Right Column - User History & Actions */}
+                <div>
+                    {/* Your History */}
+                    <div className="card mb-4">
+                        <div className="card-header">
+                            <h3 className="card-title">📊 Your History</h3>
+                        </div>
+                        <div className="card-body">
+                            <UserHistoryTable history={userHistory} />
+                        </div>
+                    </div>
+
+                    {/* Owner Actions */}
+                    {isOwner && (
+                        <div className="card mb-4">
+                            <div className="card-header">
+                                <h3 className="card-title">⚙️ Quiz Management</h3>
+                            </div>
+                            <div className="card-body">
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+                                    <button
+                                        className="btn btn-secondary"
+                                        onClick={() => navigate(`/edit-quiz/${quizId}`)}
+                                    >
+                                        ✏️ Edit Quiz
+                                    </button>
+                                    <button
+                                        className="btn btn-warning"
+                                        onClick={handleDeleteHistory}
+                                        disabled={clearingHistory}
+                                    >
+                                        {clearingHistory ? 'Clearing...' : '🗑️ Clear History'}
+                                    </button>
+                                    <button
+                                        className="btn btn-error"
+                                        onClick={handleDelete}
+                                        disabled={deleting}
+                                    >
+                                        {deleting ? 'Deleting...' : '💥 Delete Quiz'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     )}
-                </ul>
+
+                    {/* Quiz Info */}
+                    <div className="card">
+                        <div className="card-header">
+                            <h3 className="card-title">ℹ️ Quiz Information</h3>
+                        </div>
+                        <div className="card-body">
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>Questions:</span>
+                                    <span style={{ fontWeight: 600 }}>{quiz.questions?.length || 0}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>Created:</span>
+                                    <span style={{ fontWeight: 600 }}>
+                                        {quiz.createdAt ? new Date(quiz.createdAt).toLocaleDateString() : 'Unknown'}
+                                    </span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>Creator:</span>
+                                    <span style={{ fontWeight: 600 }}>
+                                        <a 
+                                            href={`/profile/${quiz.createdBy}`}
+                                            style={{ color: 'var(--primary-600)', textDecoration: 'none' }}
+                                        >
+                                            {quiz.createdBy}
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            {/* Top Performers (All Time) */}
-            <div className="quiz-summary-section">
-                <h4>Top Performers (All Time)</h4>
-                <ul style={{ padding: 0, listStyle: 'none' }}>
-                    {(Array.isArray(topScores) ? topScores : []).map((attempt, i) => (
-                        <li key={attempt.id}>
-                            {attempt.user?.username || 'User'}: {attempt.score || 0}/{attempt.totalQuestions} ({Math.round(attempt.percentage || 0)}%)
-                        </li>
-                    ))}
-                    {(!Array.isArray(topScores) || topScores.length === 0) && (
-                        <li style={{ color: '#666', fontStyle: 'italic' }}>No attempts yet</li>
-                    )}
-                </ul>
-            </div>
-            {/* Top Performers (Today) */}
-            <div className="quiz-summary-section">
-                <h4>Top Performers (Today)</h4>
-                <ul style={{ padding: 0, listStyle: 'none' }}>
-                    {(Array.isArray(topScoresToday) ? topScoresToday : []).map((attempt, i) => (
-                        <li key={attempt.id}>
-                            {attempt.user?.username || 'User'}: {attempt.score || 0}/{attempt.totalQuestions} ({Math.round(attempt.percentage || 0)}%)
-                        </li>
-                    ))}
-                    {(!Array.isArray(topScoresToday) || topScoresToday.length === 0) && (
-                        <li style={{ color: '#666', fontStyle: 'italic' }}>No attempts today</li>
-                    )}
-                </ul>
-            </div>
-            {/* Recent Test Takers */}
-            <div className="quiz-summary-section">
-                <h4>Recent Test Takers</h4>
-                <ul style={{ padding: 0, listStyle: 'none' }}>
-                    {(Array.isArray(recentScores) ? recentScores : []).map((attempt, i) => (
-                        <li key={attempt.id}>
-                            {attempt.user?.username || 'User'}: {attempt.score || 0}/{attempt.totalQuestions} ({Math.round(attempt.percentage || 0)}%) — {attempt.timeTakenMinutes !== null ? attempt.timeTakenMinutes : 'N/A'} min
-                        </li>
-                    ))}
-                    {(!Array.isArray(recentScores) || recentScores.length === 0) && (
-                        <li style={{ color: '#666', fontStyle: 'italic' }}>No recent attempts</li>
-                    )}
-                </ul>
-            </div>
-            <div className="quiz-summary-actions">
-                <button className="quiz-btn quiz-btn-primary" onClick={() => navigate(`/quiz/${quiz.id}`)}>
-                    Start Quiz
-                </button>
-                {quiz.practiceMode && (
-                    <button className="quiz-btn quiz-btn-secondary" onClick={() => navigate(`/quiz/${quiz.id}?practice=true`)}>
-                        Practice Mode
-                    </button>
-                )}
-                <button className="quiz-btn quiz-btn-secondary" onClick={() => {
-                    fetchFriends();
-                    setChallengeModalOpen(true);
-                }}>
-                    Challenge a Friend
-                </button>
-                {isOwner && (
-                    <button className="quiz-btn quiz-btn-secondary" onClick={() => navigate(`/edit-quiz/${quiz.id}`)}>
-                        Edit Quiz
-                    </button>
-                )}
-                {isOwner && (
-                    <button className="quiz-btn quiz-btn-danger" onClick={handleDelete} disabled={deleting}>
-                        {deleting ? 'Deleting...' : 'Delete Quiz'}
-                    </button>
-                )}
-                {clearingHistory && (
-                    <button className="quiz-btn quiz-btn-secondary" disabled>
-                        Clearing...
-                    </button>
-                )}
-                {!clearingHistory && (
-                    <button className="quiz-btn quiz-btn-secondary" onClick={handleDeleteHistory}>
-                        Delete History
-                    </button>
-                )}
-            </div>
+
+            {/* Challenge Modal */}
             {isChallengeModalOpen && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <h3>Challenge a Friend</h3>
-                        <p>Select a friend to challenge to take this quiz:</p>
-                        <select
-                            value={selectedFriend}
-                            onChange={(e) => setSelectedFriend(e.target.value)}
-                            style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
-                        >
-                            <option value="">Select a friend...</option>
-                            {friends.map(friend => (
-                                <option key={friend} value={friend}>
-                                    {friend}
-                                </option>
-                            ))}
-                        </select>
-                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-                            <button
+                <div className="modal-overlay" onClick={() => setChallengeModalOpen(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3 className="modal-title">⚡ Challenge a Friend</h3>
+                            <button className="modal-close" onClick={() => setChallengeModalOpen(false)}>×</button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="form-group">
+                                <label className="form-label">Select Friend:</label>
+                                <select 
+                                    className="form-input form-select"
+                                    value={selectedFriend}
+                                    onChange={(e) => setSelectedFriend(e.target.value)}
+                                    disabled={fetchingFriends || friends.length === 0}
+                                >
+                                    <option value="">
+                                        {fetchingFriends ? 'Loading friends...' : 
+                                         friends.length === 0 ? 'No friends available' : 'Choose a friend...'}
+                                    </option>
+                                    {friends.map((friend) => (
+                                        <option key={friend.username || friend.id || friend} value={friend.username || friend}>
+                                            {friend.username || friend}
+                                        </option>
+                                    ))}
+                                </select>
+                                {fetchingFriends && (
+                                    <div style={{ 
+                                        color: 'var(--text-muted)', 
+                                        fontSize: 'var(--font-size-sm)', 
+                                        marginTop: 'var(--spacing-sm)',
+                                        textAlign: 'center',
+                                        fontStyle: 'italic'
+                                    }}>
+                                        Loading your friends...
+                                    </div>
+                                )}
+                                {!fetchingFriends && friends.length === 0 && (
+                                    <div style={{ 
+                                        color: 'var(--text-muted)', 
+                                        fontSize: 'var(--font-size-sm)', 
+                                        marginTop: 'var(--spacing-sm)',
+                                        textAlign: 'center',
+                                        padding: 'var(--spacing-md)',
+                                        background: 'var(--background-secondary)',
+                                        borderRadius: 'var(--radius-lg)',
+                                        border: '1px solid var(--border-light)'
+                                    }}>
+                                        <p style={{ margin: '0 0 var(--spacing-sm) 0', fontStyle: 'italic' }}>
+                                            You don't have any friends yet.
+                                        </p>
+                                        <button 
+                                            className="btn btn-primary btn-sm"
+                                            onClick={() => {
+                                                setChallengeModalOpen(false);
+                                                navigate('/friends');
+                                            }}
+                                        >
+                                            Add Friends
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button 
+                                className="btn btn-outline"
                                 onClick={() => setChallengeModalOpen(false)}
-                                style={{ padding: '8px 16px' }}
                             >
                                 Cancel
                             </button>
-                            <button
+                            <button 
+                                className="btn btn-primary"
                                 onClick={handleChallengeFriend}
-                                disabled={challenging || !selectedFriend}
-                                style={{ padding: '8px 16px', backgroundColor: '#2563eb', color: 'white' }}
+                                disabled={challenging || !selectedFriend || friends.length === 0 || fetchingFriends}
                             >
                                 {challenging ? 'Sending...' : 'Send Challenge'}
                             </button>
@@ -365,6 +523,167 @@ const QuizSummary = () => {
                     </div>
                 </div>
             )}
+        </div>
+    );
+};
+
+// Helper Components
+const LeaderboardTable = ({ scores }) => {
+    if (!scores || scores.length === 0) {
+        return <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No scores yet</p>;
+    }
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
+            {scores.map((score, index) => (
+                <div 
+                    key={score.id || index}
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: 'var(--spacing-md)',
+                        background: index === 0 ? 'var(--primary-50)' : 'var(--background-secondary)',
+                        borderRadius: 'var(--radius-lg)',
+                        border: index === 0 ? '2px solid var(--primary-200)' : '1px solid var(--border-light)'
+                    }}
+                >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
+                        <div style={{
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            background: index === 0 ? 'var(--primary-600)' : 'var(--gray-300)',
+                            color: 'white',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 600,
+                            fontSize: 'var(--font-size-sm)'
+                        }}>
+                            {index + 1}
+                        </div>
+                        <div>
+                            <div style={{ fontWeight: 600 }}>
+                                <a 
+                                    href={`/profile/${score.user?.username || score.username}`}
+                                    style={{ color: 'var(--text-primary)', textDecoration: 'none' }}
+                                >
+                                    {score.user?.username || score.username}
+                                </a>
+                            </div>
+                            <div style={{ color: 'var(--text-muted)', fontSize: 'var(--font-size-sm)' }}>
+                                {new Date(score.startTime).toLocaleDateString()}
+                            </div>
+                        </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                        <div style={{ 
+                            fontWeight: 700, 
+                            fontSize: 'var(--font-size-lg)',
+                            color: index === 0 ? 'var(--primary-600)' : 'var(--text-primary)'
+                        }}>
+                            {score.score}%
+                        </div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: 'var(--font-size-sm)' }}>
+                            {score.timeTakenMinutes} min
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+const RecentAttemptsTable = ({ attempts }) => {
+    if (!attempts || attempts.length === 0) {
+        return <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No recent attempts</p>;
+    }
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
+            {attempts.map((attempt, index) => (
+                <div 
+                    key={attempt.id || index}
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: 'var(--spacing-md)',
+                        background: 'var(--background-secondary)',
+                        borderRadius: 'var(--radius-lg)',
+                        border: '1px solid var(--border-light)'
+                    }}
+                >
+                    <div>
+                        <div style={{ fontWeight: 600 }}>
+                            <a 
+                                href={`/profile/${attempt.user?.username || attempt.username}`}
+                                style={{ color: 'var(--text-primary)', textDecoration: 'none' }}
+                            >
+                                {attempt.user?.username || attempt.username}
+                            </a>
+                        </div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: 'var(--font-size-sm)' }}>
+                            {new Date(attempt.startTime).toLocaleString()}
+                        </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontWeight: 600, color: 'var(--primary-600)' }}>
+                            {attempt.score}%
+                        </div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: 'var(--font-size-sm)' }}>
+                            {attempt.timeTakenMinutes} min
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+const UserHistoryTable = ({ history }) => {
+    if (!history || history.length === 0) {
+        return <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No attempts yet</p>;
+    }
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
+            {history.map((attempt, index) => (
+                <div 
+                    key={attempt.id || index}
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: 'var(--spacing-md)',
+                        background: 'var(--background-secondary)',
+                        borderRadius: 'var(--radius-lg)',
+                        border: '1px solid var(--border-light)'
+                    }}
+                >
+                    <div>
+                        <div style={{ fontWeight: 600 }}>
+                            Attempt #{history.length - index}
+                        </div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: 'var(--font-size-sm)' }}>
+                            {new Date(attempt.startTime).toLocaleString()}
+                        </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                        <div style={{ 
+                            fontWeight: 600, 
+                            color: attempt.score >= 80 ? 'var(--success-600)' : 
+                                   attempt.score >= 60 ? 'var(--warning-600)' : 'var(--error-600)'
+                        }}>
+                            {attempt.score}%
+                        </div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: 'var(--font-size-sm)' }}>
+                            {attempt.timeTakenMinutes} min
+                        </div>
+                    </div>
+                </div>
+            ))}
         </div>
     );
 };

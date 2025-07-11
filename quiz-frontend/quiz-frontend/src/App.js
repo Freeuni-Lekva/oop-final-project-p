@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout';
 import Login from './components/Login';
 import Register from './components/Register';
 import AdminDashboard from './components/AdminDashboard';
@@ -15,16 +16,47 @@ function App() {
     return (
         <Router>
             <Routes>
+                {/* Public routes - no layout */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/create-quiz" element={<CreateQuiz />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/quiz/:quizId" element={<TakeQuiz />} />
-                <Route path="/quizzes" element={<QuizList />} />
-                <Route path="/profile/:username" element={<UserProfile />} />
-                <Route path="/quiz-summary/:quizId" element={<QuizSummary />} />
                 <Route path="/" element={<Login />} />
+                
+                {/* Protected routes - with layout */}
+                <Route path="/home" element={
+                    <Layout>
+                        <Home />
+                    </Layout>
+                } />
+                <Route path="/create-quiz" element={
+                    <Layout>
+                        <CreateQuiz />
+                    </Layout>
+                } />
+                <Route path="/admin" element={
+                    <Layout>
+                        <AdminDashboard />
+                    </Layout>
+                } />
+                <Route path="/quiz/:quizId" element={
+                    <Layout>
+                        <TakeQuiz />
+                    </Layout>
+                } />
+                <Route path="/quizzes" element={
+                    <Layout>
+                        <QuizList />
+                    </Layout>
+                } />
+                <Route path="/profile/:username" element={
+                    <Layout>
+                        <UserProfile />
+                    </Layout>
+                } />
+                <Route path="/quiz-summary/:quizId" element={
+                    <Layout>
+                        <QuizSummary />
+                    </Layout>
+                } />
             </Routes>
         </Router>
     );

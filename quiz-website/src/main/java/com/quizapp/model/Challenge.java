@@ -6,6 +6,13 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "challenges")
 public class Challenge {
+    public enum Status {
+        PENDING,
+        ACCEPTED,
+        DECLINED,
+        COMPLETED
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,6 +35,10 @@ public class Challenge {
     @Column(name = "seen", nullable = false)
     private boolean seen = false;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private Status status = Status.PENDING;
+
     // Constructors
     public Challenge() {}
 
@@ -36,6 +47,7 @@ public class Challenge {
         this.challenged = challenged;
         this.quiz = quiz;
         this.createdAt = LocalDateTime.now();
+        this.status = Status.PENDING;
     }
 
     // Getters and Setters
@@ -85,5 +97,13 @@ public class Challenge {
 
     public void setSeen(boolean seen) {
         this.seen = seen;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }
