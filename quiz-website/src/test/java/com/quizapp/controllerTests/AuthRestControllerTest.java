@@ -1,10 +1,9 @@
 package com.quizapp.controllerTests;
 
 import com.quizapp.model.User;
-import com.quizapp.repository.AnnouncementRepository;
-import com.quizapp.repository.ChallengeRepository;
-import com.quizapp.repository.FriendRequestRepository;
-import com.quizapp.repository.UserRepository;
+import com.quizapp.repository.*;
+import com.quizapp.service.QuestionService;
+import com.quizapp.service.QuizService;
 import com.quizapp.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,18 +37,46 @@ public class AuthRestControllerTest {
     private FriendRequestRepository friendRequestRepository;
     @Autowired
     private AnnouncementRepository announcementRepository;
+    @Autowired
+    private QuestionRepository questionRepository;
+    @Autowired
+    private QuizRepository quizRepository;
+    @Autowired
+    private MessageRepository messageRepository;
+    @Autowired
+    private AnswerRepository answerRepository;
+    @Autowired
+    private QuizAttemptRepository quizAttemptRepository;
 
     private User testUser;
 
     @BeforeEach
     void setUp() {
 
-        // Clear dependent tables first
+        // ✅ Delete all related entities in the right order (child → parent)
+        messageRepository.deleteAll();
+        answerRepository.deleteAll();
+        questionRepository.deleteAll();
+        quizAttemptRepository.deleteAll();
+        quizRepository.deleteAll();
         challengeRepository.deleteAll();
         friendRequestRepository.deleteAll();
         announcementRepository.deleteAll();
+
+        // ✅ Flush to enforce order
+//        messageRepository.flush();
+//        answerRepository.flush();
+//        questionRepository.flush();
+//        quizAttemptRepository.flush();
+//        quizRepository.flush();
+//        challengeRepository.flush();
+//        friendRequestRepository.flush();
+//        announcementRepository.flush();
+
+        // ✅ Then delete users
         userRepository.deleteAll();
-        
+        //userRepository.flush();
+
         testUser = new User();
         testUser.setUsername("testuser");
         testUser.setPasswordHash("password");
