@@ -58,10 +58,10 @@ public class AuthRestControllerTest {
         answerRepository.deleteAll();
         questionRepository.deleteAll();
         quizAttemptRepository.deleteAll();
-        quizRepository.deleteAll();
         challengeRepository.deleteAll();
         friendRequestRepository.deleteAll();
         announcementRepository.deleteAll();
+        quizRepository.deleteAll();
 
         // ✅ Flush to enforce order
 //        messageRepository.flush();
