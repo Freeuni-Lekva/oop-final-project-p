@@ -121,7 +121,7 @@ const UserProfile = () => {
     };
 
     if (error) return <div className="profile-error">{error}</div>;
-    if (!profile) return <div className="profile-loading">Loading...</div>;
+    if (!profile) return <div className="profile-loading">Loading profile...</div>;
 
     return (
         <div className="profile-page-bg">
@@ -140,35 +140,46 @@ const UserProfile = () => {
                     ) : friendStatus === 'FRIENDS' ? (
                         <>
                             <p className="profile-friends">You are already friends.</p>
-                            <button className="profile-remove-friend" onClick={handleRemoveFriend} style={{backgroundColor: '#f44336', color: '#fff', marginTop: '0.5rem'}}>Remove Friend</button>
+                            <button className="profile-remove-friend" onClick={handleRemoveFriend}>
+                                Remove Friend
+                            </button>
                         </>
                     ) : friendStatus === 'PENDING' ? (
                         pendingRequestId ? (
                             <div className="profile-pending">
                                 <p>Friend request pending. Respond?</p>
-                                <button className="profile-accept-friend" onClick={handleAcceptRequest} style={{backgroundColor: '#28a745', color: '#fff', marginRight: '0.5rem'}}>Accept</button>
-                                <button className="profile-reject-friend" onClick={handleRejectRequest} style={{backgroundColor: '#f44336', color: '#fff'}}>Reject</button>
+                                <button className="profile-accept-friend" onClick={handleAcceptRequest}>
+                                    Accept
+                                </button>
+                                <button className="profile-reject-friend" onClick={handleRejectRequest}>
+                                    Reject
+                                </button>
                             </div>
                         ) : (
                             <p className="profile-pending">Friend request pending.</p>
                         )
                     ) : (
-                        <button className="profile-add-friend" onClick={handleAddFriend}>Add Friend</button>
+                        <button className="profile-add-friend" onClick={handleAddFriend}>
+                            Add Friend
+                        </button>
                     )}
                     {success && <div className="profile-success">{success}</div>}
                 </div>
             </div>
+            
             <div className="profile-quiz-history-modern">
-                <h3>Recently Taken Quizzes</h3>
+                <h3>📊 Recently Taken Quizzes</h3>
                 {quizHistory.length === 0 ? (
-                    <p>No quizzes taken yet.</p>
+                    <p style={{ textAlign: 'center', color: 'var(--gray-500)', fontStyle: 'italic' }}>
+                        No quizzes taken yet.
+                    </p>
                 ) : (
                     <ul className="quiz-history-list">
                         {quizHistory.map((q, idx) => (
                             <li key={idx} className="quiz-history-item">
                                 <div><b>{q.quizTitle}</b></div>
                                 <div>Score: {q.score} / {q.totalQuestions} ({q.percentage.toFixed(1)}%)</div>
-                                <div style={{fontSize: '0.9em', color: '#888'}}>Taken: {q.endTime ? new Date(q.endTime).toLocaleString() : 'N/A'}</div>
+                                <div>Taken: {q.endTime ? new Date(q.endTime).toLocaleString() : 'N/A'}</div>
                             </li>
                         ))}
                     </ul>

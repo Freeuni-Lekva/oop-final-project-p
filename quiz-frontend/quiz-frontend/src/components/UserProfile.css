@@ -1,105 +1,386 @@
+/* ===== MODERN USER PROFILE DESIGN ===== */
+
 body, .profile-page-bg {
-    background: #653d8e;
+    background: linear-gradient(135deg, var(--primary-50) 0%, var(--secondary-50) 100%);
     min-height: 100vh;
     width: 100vw;
     margin: 0;
     padding: 0;
+    font-family: var(--font-family);
 }
 
 .profile-page-bg {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 3rem;
+    padding: var(--space-12) var(--space-4);
     min-height: 100vh;
+    gap: var(--space-8);
 }
 
+/* ===== Profile Card ===== */
 .profile-card-modern {
-    background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 4px 24px rgba(103,58,183,0.10);
-    border: 1.5px solid #b39ddb;
-    padding: 2.5rem 2.5rem 2rem 2.5rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-2xl);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: var(--space-12) var(--space-8);
     width: 100%;
-    max-width: 420px;
+    max-width: 480px;
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 2rem;
+    overflow: hidden;
 }
 
-.profile-avatar-wrapper {
+.profile-card-modern::before {
+    content: '';
     position: absolute;
-    top: -48px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-500), var(--secondary-500));
+}
+
+/* ===== Avatar Section ===== */
+.profile-avatar-wrapper {
+    position: relative;
+    margin-bottom: var(--space-6);
 }
 
 .profile-avatar-modern {
-    width: 96px;
-    height: 96px;
-    background: #d1c4e9;
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, var(--primary-100), var(--secondary-100));
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 16px rgba(103,58,183,0.13);
-    border: 4px solid #fff;
+    box-shadow: var(--shadow-xl);
+    border: 4px solid rgba(255, 255, 255, 0.8);
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-avatar-modern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--primary-200), var(--secondary-200));
+    opacity: 0.3;
 }
 
 .profile-avatar-initials {
-    font-size: 2.7rem;
+    font-size: var(--font-size-4xl);
     font-weight: 700;
-    color: #6a11cb;
+    color: var(--primary-700);
     user-select: none;
+    position: relative;
+    z-index: 1;
 }
 
+/* ===== Profile Header ===== */
 .profile-header-modern {
-    margin-top: 56px;
     text-align: center;
+    margin-bottom: var(--space-6);
 }
 
 .profile-username-modern {
-    color: #6a11cb;
-    font-size: 2rem;
+    color: var(--gray-900);
+    font-size: var(--font-size-3xl);
     font-weight: 700;
-    margin-bottom: 0.2rem;
+    margin-bottom: var(--space-2);
+    background: linear-gradient(135deg, var(--primary-600), var(--secondary-600));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .profile-id-modern {
-    color: #888;
-    font-size: 1rem;
+    color: var(--gray-500);
+    font-size: var(--font-size-base);
 }
 
-.profile-quiz-history-modern {
-    background: #fff;
-    border-radius: 14px;
-    box-shadow: 0 2px 12px rgba(103,58,183,0.08);
-    border: 1.5px solid #b39ddb;
-    padding: 1.5rem 2rem;
+/* ===== Profile Status & Actions ===== */
+.profile-status {
+    text-align: center;
     width: 100%;
-    max-width: 420px;
-    margin-bottom: 2rem;
+}
+
+.profile-friends {
+    color: var(--success-600);
+    font-weight: 600;
+    margin-bottom: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    background: var(--success-50);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--success-200);
+}
+
+.profile-pending {
+    color: var(--warning-600);
+    font-weight: 600;
+    margin-bottom: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    background: var(--warning-50);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--warning-200);
+}
+
+.profile-success {
+    color: var(--success-600);
+    font-weight: 600;
+    margin-top: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    background: var(--success-50);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--success-200);
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* ===== Action Buttons ===== */
+.profile-add-friend,
+.profile-remove-friend,
+.profile-accept-friend,
+.profile-reject-friend {
+    padding: var(--space-3) var(--space-6);
+    border: none;
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    font-family: var(--font-family);
+    margin: var(--space-2);
+    min-width: 120px;
+}
+
+.profile-add-friend {
+    background: var(--primary-500);
+    color: white;
+    box-shadow: var(--shadow-md);
+}
+
+.profile-add-friend:hover {
+    background: var(--primary-600);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+.profile-remove-friend {
+    background: var(--error-500);
+    color: white;
+    box-shadow: var(--shadow-md);
+}
+
+.profile-remove-friend:hover {
+    background: var(--error-600);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+.profile-accept-friend {
+    background: var(--success-500);
+    color: white;
+    box-shadow: var(--shadow-md);
+}
+
+.profile-accept-friend:hover {
+    background: var(--success-600);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+.profile-reject-friend {
+    background: var(--error-500);
+    color: white;
+    box-shadow: var(--shadow-md);
+}
+
+.profile-reject-friend:hover {
+    background: var(--error-600);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* ===== Quiz History Section ===== */
+.profile-quiz-history-modern {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-2xl);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: var(--space-8);
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-quiz-history-modern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--secondary-500), var(--primary-500));
 }
 
 .profile-quiz-history-modern h3 {
-    color: #6a11cb;
-    font-weight: 600;
-    margin-bottom: 1rem;
+    color: var(--gray-900);
+    font-weight: 700;
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--space-6);
+    text-align: center;
+    background: linear-gradient(135deg, var(--secondary-600), var(--primary-600));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .quiz-history-list {
     list-style: none;
     padding: 0;
     margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
 }
 
 .quiz-history-item {
-    border-bottom: 1px solid #e0e0e0;
-    padding: 0.75rem 0;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    transition: all var(--transition-normal);
 }
-.quiz-history-item:last-child {
-    border-bottom: none;
+
+.quiz-history-item:hover {
+    background: var(--gray-100);
+    border-color: var(--primary-200);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.quiz-history-item div:first-child {
+    font-weight: 600;
+    color: var(--gray-900);
+    font-size: var(--font-size-base);
+    margin-bottom: var(--space-2);
+}
+
+.quiz-history-item div:nth-child(2) {
+    color: var(--primary-600);
+    font-weight: 500;
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-1);
+}
+
+.quiz-history-item div:last-child {
+    color: var(--gray-500);
+    font-size: var(--font-size-sm);
+}
+
+/* ===== Error & Loading States ===== */
+.profile-error {
+    background: var(--error-50);
+    color: var(--error-700);
+    border: 1px solid var(--error-200);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    margin: var(--space-4);
+    text-align: center;
+    font-weight: 500;
+}
+
+.profile-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-12);
+    color: var(--gray-600);
+    font-size: var(--font-size-lg);
+}
+
+.profile-loading::before {
+    content: '';
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--gray-200);
+    border-top: 3px solid var(--primary-500);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: var(--space-3);
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 640px) {
+    .profile-page-bg {
+        padding: var(--space-6) var(--space-3);
+    }
+    
+    .profile-card-modern,
+    .profile-quiz-history-modern {
+        max-width: 100%;
+        padding: var(--space-6) var(--space-4);
+    }
+    
+    .profile-avatar-modern {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .profile-avatar-initials {
+        font-size: var(--font-size-3xl);
+    }
+    
+    .profile-username-modern {
+        font-size: var(--font-size-2xl);
+    }
+    
+    .profile-add-friend,
+    .profile-remove-friend,
+    .profile-accept-friend,
+    .profile-reject-friend {
+        min-width: 100px;
+        padding: var(--space-2) var(--space-4);
+        font-size: var(--font-size-sm);
+    }
+}
+
+/* ===== Animations ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ===== Focus States ===== */
+.profile-add-friend:focus,
+.profile-remove-friend:focus,
+.profile-accept-friend:focus,
+.profile-reject-friend:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
 }
