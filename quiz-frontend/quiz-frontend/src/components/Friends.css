@@ -305,14 +305,14 @@
   flex-direction: column;
   align-items: center;
   width: 90px;
-  margin-bottom: 2px;
+  margin-bottom: 16px;
   min-height: 140px;
   justify-content: flex-end;
 }
 .icon-shortdesc {
   font-size: 0.93rem;
   color: #888;
-  margin-bottom: 4px;
+  margin-bottom: 12px;
   margin-top: 0;
   text-align: center;
   line-height: 1.2;

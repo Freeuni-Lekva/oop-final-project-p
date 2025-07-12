@@ -119,7 +119,7 @@ const TakeQuiz = () => {
             case 'FILL_IN_THE_BLANK':
                 return (
                     <div key={question.id} className="question-block">
-                        <label>{idx + 1}. {question.questionText}</label>
+                        <label>{question.questionText}</label>
                         <input
                             type="text"
                             value={answers[question.id] || ''}
@@ -130,7 +130,7 @@ const TakeQuiz = () => {
             case 'MULTIPLE_CHOICE':
                 return (
                     <div key={question.id} className="question-block">
-                        <label>{idx + 1}. {question.questionText}</label>
+                        <label>{question.questionText}</label>
                         <div>
                             {question.options && question.options.map((option, i) => (
                                 <label key={i}>
@@ -150,7 +150,7 @@ const TakeQuiz = () => {
             case 'PICTURE_RESPONSE':
                 return (
                     <div key={question.id} className="question-block">
-                        <label>{idx + 1}. {question.questionText}</label>
+                        <label>{question.questionText}</label>
                         <div>
                             <img src={question.imageUrl} alt="Question" style={{ maxWidth: '300px', display: 'block', margin: '10px 0' }} />
                             <input
@@ -164,7 +164,7 @@ const TakeQuiz = () => {
             default:
                 return (
                     <div key={question.id} className="question-block">
-                        <label>{idx + 1}. {question.questionText} (Type: {question.type})</label>
+                        <label>{question.questionText} (Type: {question.type})</label>
                         <input
                             type="text"
                             value={answers[question.id] || ''}

@@ -133,11 +133,10 @@ const UserProfile = () => {
                 </div>
                 <div className="profile-header-modern">
                     <h2 className="profile-username-modern">{profile.username}</h2>
-                    <p className="profile-id-modern">User ID: {profile.id}</p>
                 </div>
                 <div className="profile-status">
                     {currentUser === profile.username ? (
-                        <p className="profile-self">This is your profile.</p>
+                        null
                     ) : friendStatus === 'FRIENDS' ? (
                         <>
                             <p className="profile-friends">You are already friends.</p>

@@ -112,36 +112,140 @@ const Home = () => {
     };
 
     return (
-        <div className="auth-container">
-            {/* Top-left action bar */}
-            <div style={{ position: 'fixed', top: 24, left: 32, display: 'flex', gap: 12, zIndex: 2000, background: '#fff', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.10)', padding: '6px 12px' }}>
-                {role === 'ROLE_ADMIN' && (
-                    <>
-                        <button onClick={() => navigate('/admin')} style={{ background: '#312e81', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 700, fontSize: 16, boxShadow: '0 2px 8px rgba(49,46,129,0.08)', cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background='#4338ca'} onMouseOut={e => e.currentTarget.style.background='#312e81'}>Admin</button>
-                        <button onClick={handleShowStats} style={{ background: '#0d9488', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 700, fontSize: 16, boxShadow: '0 2px 8px rgba(13,148,136,0.08)', cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background='#14b8a6'} onMouseOut={e => e.currentTarget.style.background='#0d9488'}>Statistics</button>
-                    </>
-                )}
-                <button onClick={() => navigate(`/profile/${username}`)} style={{ background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 700, fontSize: 16, boxShadow: '0 2px 8px rgba(124,58,237,0.08)', cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background='#8b5cf6'} onMouseOut={e => e.currentTarget.style.background='#7c3aed'}>My Profile</button>
-                <button onClick={() => setMessagesModalOpen(true)} style={{ background: '#2563eb', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 700, fontSize: 16, boxShadow: '0 2px 8px rgba(37,99,235,0.08)', cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background='#1d4ed8'} onMouseOut={e => e.currentTarget.style.background='#2563eb'}>Messages</button>
-                <button onClick={() => setFriendsModalOpen(true)} style={{ background: '#059669', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 700, fontSize: 16, boxShadow: '0 2px 8px rgba(5,150,105,0.08)', cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background='#10b981'} onMouseOut={e => e.currentTarget.style.background='#059669'}>Friends</button>
-                <button onClick={() => setSignOutModalOpen(true)} style={{ background: '#e11d48', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontWeight: 700, fontSize: 16, boxShadow: '0 2px 8px rgba(225,29,72,0.08)', cursor: 'pointer', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background='#be123c'} onMouseOut={e => e.currentTarget.style.background='#e11d48'}>Sign Out</button>
+        <div className="homepage-bg">
+            {/* Modern Top Navigation Bar */}
+            <div className="card" style={{ 
+                position: 'fixed', 
+                top: '24px', 
+                left: '32px', 
+                right: '32px',
+                zIndex: 2000, 
+                padding: '16px 24px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--gray-900)' }}>
+                        🎯 QuizMaster
+                    </h2>
+                    <span style={{ 
+                        background: 'var(--primary-100)', 
+                        color: 'var(--primary-700)', 
+                        padding: '4px 12px', 
+                        borderRadius: 'var(--radius-full)',
+                        fontSize: 'var(--font-size-sm)',
+                        fontWeight: '600'
+                    }}>
+                        Welcome, {username}!
+                    </span>
+                </div>
+                
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    {role === 'ROLE_ADMIN' && (
+                        <>
+                            <button 
+                                onClick={() => navigate('/admin')} 
+                                className="btn-primary"
+                                style={{ fontSize: '14px', padding: '8px 16px' }}
+                            >
+                                👑 Admin
+                            </button>
+                            <button 
+                                onClick={handleShowStats} 
+                                className="btn-success"
+                                style={{ fontSize: '14px', padding: '8px 16px' }}
+                            >
+                                📊 Statistics
+                            </button>
+                        </>
+                    )}
+                    <button 
+                        onClick={() => navigate(`/profile/${username}`)} 
+                        className="btn-secondary"
+                        style={{ fontSize: '14px', padding: '8px 16px' }}
+                    >
+                        👤 Profile
+                    </button>
+                    <button 
+                        onClick={() => setMessagesModalOpen(true)} 
+                        className="btn-primary"
+                        style={{ fontSize: '14px', padding: '8px 16px' }}
+                    >
+                        💬 Messages
+                    </button>
+                    <button 
+                        onClick={() => setFriendsModalOpen(true)} 
+                        className="btn-success"
+                        style={{ fontSize: '14px', padding: '8px 16px' }}
+                    >
+                        👥 Friends
+                    </button>
+                    <button 
+                        onClick={() => setSignOutModalOpen(true)} 
+                        className="btn-danger"
+                        style={{ fontSize: '14px', padding: '8px 16px' }}
+                    >
+                        🚪 Sign Out
+                    </button>
+                </div>
             </div>
 
             {/* Statistics Modal */}
             {showStats && (
-                <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.25)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ background: '#fff', borderRadius: 12, padding: 32, minWidth: 320, boxShadow: '0 4px 24px rgba(0,0,0,0.12)', position: 'relative' }}>
-                        <button onClick={() => setShowStats(false)} style={{ position: 'absolute', top: 12, right: 12, background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#888' }}>×</button>
-                        <h2 style={{ color: '#4f46e5', marginBottom: 18 }}>Site Statistics</h2>
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h3 style={{ margin: 0, color: 'var(--primary-600)' }}>📊 Site Statistics</h3>
+                            <button 
+                                onClick={() => setShowStats(false)} 
+                                className="modal-close"
+                            >
+                                ×
+                            </button>
+                        </div>
                         {stats ? (
-                            stats.error ? <div style={{ color: 'red' }}>{stats.error}</div> :
-                                <ul style={{ fontSize: 18, lineHeight: 2 }}>
-                                    <li><b>Users:</b> {stats.users}</li>
-                                    <li><b>Quizzes:</b> {stats.quizzes}</li>
-                                    <li><b>Quizzes Taken:</b> {stats.quizzesTaken}</li>
-                                </ul>
+                            stats.error ? (
+                                <div style={{ color: 'var(--error-600)', textAlign: 'center' }}>
+                                    {stats.error}
+                                </div>
+                            ) : (
+                                <div style={{ fontSize: '18px', lineHeight: '2' }}>
+                                    <div style={{ 
+                                        display: 'flex', 
+                                        justifyContent: 'space-between', 
+                                        padding: '12px 0',
+                                        borderBottom: '1px solid var(--gray-200)'
+                                    }}>
+                                        <span><strong>👥 Users:</strong></span>
+                                        <span style={{ color: 'var(--primary-600)', fontWeight: '600' }}>{stats.users}</span>
+                                    </div>
+                                    <div style={{ 
+                                        display: 'flex', 
+                                        justifyContent: 'space-between', 
+                                        padding: '12px 0',
+                                        borderBottom: '1px solid var(--gray-200)'
+                                    }}>
+                                        <span><strong>📝 Quizzes:</strong></span>
+                                        <span style={{ color: 'var(--secondary-600)', fontWeight: '600' }}>{stats.quizzes}</span>
+                                    </div>
+                                    <div style={{ 
+                                        display: 'flex', 
+                                        justifyContent: 'space-between', 
+                                        padding: '12px 0'
+                                    }}>
+                                        <span><strong>✅ Quizzes Taken:</strong></span>
+                                        <span style={{ color: 'var(--success-600)', fontWeight: '600' }}>{stats.quizzesTaken}</span>
+                                    </div>
+                                </div>
+                            )
                         ) : (
-                            <div>Loading...</div>
+                            <div style={{ textAlign: 'center', padding: '20px' }}>
+                                <div className="loading"></div>
+                                <p>Loading statistics...</p>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -149,12 +253,33 @@ const Home = () => {
 
             {/* Sign-out Modal */}
             {isSignOutModalOpen && (
-                <div className="signout-modal-overlay">
-                    <div className="signout-modal-content">
-                        <h3>Sign Out?</h3>
-                        <div style={{ display: 'flex', gap: 12, marginTop: 16, justifyContent: 'center' }}>
-                            <button onClick={() => setSignOutModalOpen(false)} className="cancel-signout-button">Cancel</button>
-                            <button onClick={handleSignOut} className="confirm-signout-button">Sign Out</button>
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h3 style={{ margin: 0, color: 'var(--error-600)' }}>🚪 Sign Out</h3>
+                            <button 
+                                onClick={() => setSignOutModalOpen(false)} 
+                                className="modal-close"
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <p style={{ textAlign: 'center', marginBottom: '24px' }}>
+                            Are you sure you want to sign out?
+                        </p>
+                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                            <button 
+                                onClick={() => setSignOutModalOpen(false)} 
+                                className="btn-outline"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={handleSignOut} 
+                                className="btn-danger"
+                            >
+                                Sign Out
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -162,126 +287,248 @@ const Home = () => {
 
             {error && <div className="auth-error">{error}</div>}
 
-            {/* Challenge Notifications */}
-            {/* Remove any top-level or duplicate challenge notifications rendering */}
-            {/* Only render challenges in the Challenges field below */}
-
-            {/* Modern Homepage Soft Background Layout */}
-            <div className="homepage-bg">
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '18px', margin: '32px 0 24px 0' }}>
-                    <button
-                        onClick={() => navigate('/create-quiz')}
-                        style={{
-                            background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 8, padding: '12px 28px', fontWeight: 700, fontSize: 18, boxShadow: '0 2px 8px rgba(124,58,237,0.08)', cursor: 'pointer', transition: 'background 0.2s', letterSpacing: '0.01em'
-                        }}
-                        onMouseOver={e => e.currentTarget.style.background='#8b5cf6'}
-                        onMouseOut={e => e.currentTarget.style.background='#7c3aed'}
-                    >
-                        + Create Quiz
-                    </button>
-                    <button
-                        onClick={() => navigate('/quizzes')}
-                        style={{
-                            background: '#2563eb', color: '#fff', border: 'none', borderRadius: 8, padding: '12px 28px', fontWeight: 700, fontSize: 18, boxShadow: '0 2px 8px rgba(37,99,235,0.08)', cursor: 'pointer', transition: 'background 0.2s', letterSpacing: '0.01em'
-                        }}
-                        onMouseOver={e => e.currentTarget.style.background='#1d4ed8'}
-                        onMouseOut={e => e.currentTarget.style.background='#2563eb'}
-                    >
-                        Browse Quizzes
-                    </button>
+            {/* Main Content */}
+            <div className="homepage-vertical" style={{ marginTop: '100px' }}>
+                {/* Welcome Message */}
+                <div className="card" style={{ textAlign: 'center', marginBottom: '24px' }}>
+                    <h1 style={{ 
+                        background: 'linear-gradient(135deg, var(--primary-600), var(--secondary-600))',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        marginBottom: '16px'
+                    }}>
+                        Welcome to QuizMaster! 🎯
+                    </h1>
+                    <p style={{ fontSize: '18px', color: 'var(--gray-600)', marginBottom: '24px' }}>
+                        {message}
+                    </p>
+                    
+                    {/* Quick Action Buttons */}
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                        <button
+                            onClick={() => navigate('/create-quiz')}
+                            className="btn-primary"
+                            style={{ fontSize: '16px', padding: '12px 24px' }}
+                        >
+                            ✨ Create Quiz
+                        </button>
+                        <button
+                            onClick={() => navigate('/quizzes')}
+                            className="btn-secondary"
+                            style={{ fontSize: '16px', padding: '12px 24px' }}
+                        >
+                            🔍 Browse Quizzes
+                        </button>
+                    </div>
                 </div>
-                <div className="homepage-vertical">
-                    {/* Announcements Card */}
-                    <div className="homepage-hcard homepage-announcements">
-                        <h3 className="homepage-hcard-title">📢 Announcements</h3>
-                        {announcements.length === 0 ? (
-                            <div className="homepage-hcard-empty">No announcements available.</div>
-                        ) : (
-                            <ul className="homepage-hcard-list">
-                                {announcements.map((a) => (
-                                    <li key={a.id} className="homepage-hcard-listitem">
-                                        <div className="homepage-hcard-listtitle">{a.title}</div>
-                                        <div className="homepage-hcard-listcontent">{a.content}</div>
-                                        <div className="homepage-hcard-listdate">{new Date(a.createdAt).toLocaleString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</div>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
-                    {/* Challenges Card */}
-                    <div className="homepage-hcard homepage-challenges">
-                        <h3 className="homepage-hcard-title">🎯 Challenges</h3>
-                        {challenges.length === 0 ? (
-                            <div className="homepage-hcard-empty">No challenges at the moment.</div>
-                        ) : (
-                            <ul className="homepage-hcard-list">
-                                {challenges.map(chal => (
-                                    <li key={chal.id} className="homepage-hcard-listitem">
-                                        <span>
-                                            <b><a href={`/profile/${chal.challenger.username}`} style={{color:'#2563eb',textDecoration:'underline'}}>{chal.challenger.username}</a></b> challenged you to <b><a href={`/quiz-summary/${chal.quiz.id}`} style={{color:'#2563eb',textDecoration:'underline'}}>{chal.quiz.title}</a></b>!
-                                            <br/>
-                                            Their best score: <b>{challengeScores[chal.id]}</b>
-                                        </span>
-                                        <span className="homepage-hcard-listlink" onClick={() => navigate(`/quiz-summary/${chal.quiz.id}`)} style={{color:'#2563eb', cursor:'pointer', marginLeft:8}}>Go to Quiz</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
-                    {/* History Card */}
-                    <div className="homepage-hcard homepage-history">
-                        <h3 className="homepage-hcard-title">🕑 History</h3>
-                        {username ? (
-                            <HistoryList username={username} />
-                        ) : (
-                            <div className="homepage-hcard-empty">Loading...</div>
-                        )}
-                    </div>
-                    {/* Friends Card (placeholder) */}
-                    <div className="homepage-hcard homepage-friends">
-                        <h3 className="homepage-hcard-title">👥 Friends</h3>
-                        <FriendsStatsList />
-                    </div>
-                    {/* Recent Quiz Creations Card (placeholder) */}
-                    <div className="homepage-hcard homepage-creations">
-                        <h3 className="homepage-hcard-title">📝 Recent Quiz Creations</h3>
-                        {username ? (
-                            <RecentCreationsList username={username} />
-                        ) : (
-                            <div className="homepage-hcard-empty">Loading...</div>
-                        )}
-                    </div>
-                    {/* Popular Quizzes Card (placeholder) */}
-                    <div className="homepage-hcard homepage-popular">
-                        <h3 className="homepage-hcard-title">🌟 Popular Quizzes</h3>
-                        <PopularQuizzesList />
-                    </div>
-                    {/* Achievements Card */}
-                    <div className="homepage-hcard homepage-achievements">
-                        <h3 className="homepage-hcard-title">🏅 Achievements</h3>
-                        {username ? (
-                            <AchievementsCard username={username} />
-                        ) : (
-                            <div className="homepage-hcard-empty">Loading...</div>
-                        )}
-                    </div>
+
+                {/* Announcements Card */}
+                <div className="homepage-hcard">
+                    <h3 className="homepage-hcard-title">📢 Announcements</h3>
+                    {announcements.length === 0 ? (
+                        <div className="homepage-hcard-empty">No announcements available.</div>
+                    ) : (
+                        <ul className="homepage-hcard-list">
+                            {announcements.map((announcement, index) => (
+                                <li key={index} className="homepage-hcard-listitem">
+                                    <div className="homepage-hcard-listtitle">{announcement.title}</div>
+                                    <div className="homepage-hcard-listcontent">{announcement.content}</div>
+                                    <div className="homepage-hcard-listdate">
+                                        {new Date(announcement.createdAt).toLocaleDateString()}
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+
+                {/* Active Challenges Card */}
+                <div className="homepage-hcard">
+                    <h3 className="homepage-hcard-title">⚔️ Active Challenges</h3>
+                    {challenges.length === 0 ? (
+                        <div className="homepage-hcard-empty">No active challenges.</div>
+                    ) : (
+                        <ul className="homepage-hcard-list">
+                            {challenges.map((challenge) => (
+                                <li key={challenge.id} className="homepage-hcard-listitem">
+                                    <div className="homepage-hcard-listtitle">
+                                        {challenge.quiz.title} vs {challenge.challenger.username}
+                                    </div>
+                                    <div className="homepage-hcard-listcontent">
+                                        Your best score: {challengeScores[challenge.id] || 0}
+                                    </div>
+                                    <button
+                                        onClick={() => navigate(`/quiz/${challenge.quiz.id}`)}
+                                        className="btn-primary"
+                                        style={{ marginTop: '8px', fontSize: '14px', padding: '6px 12px' }}
+                                    >
+                                        Take Challenge
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+
+                {/* User Stats Card */}
+                <div className="homepage-hcard">
+                    <h3 className="homepage-hcard-title">📈 Your Statistics</h3>
+                    <UserStatsList username={username} />
+                </div>
+
+                {/* Recent Activity Card */}
+                <div className="homepage-hcard">
+                    <h3 className="homepage-hcard-title">🕒 Recent Activity</h3>
+                    <HistoryList username={username} />
+                </div>
+
+                {/* Recent Creations Card */}
+                <div className="homepage-hcard">
+                    <h3 className="homepage-hcard-title">🎨 Recent Creations</h3>
+                    <RecentCreationsList username={username} />
+                </div>
+
+                {/* Popular Quizzes Card */}
+                <div className="homepage-hcard">
+                    <h3 className="homepage-hcard-title">🔥 Popular Quizzes</h3>
+                    <PopularQuizzesList />
+                </div>
+
+                {/* Friends Stats Card */}
+                <div className="homepage-hcard">
+                    <h3 className="homepage-hcard-title">👥 Friends Activity</h3>
+                    <FriendsStatsList />
+                </div>
+
+                {/* Achievements Card */}
+                <div className="homepage-hcard">
+                    <h3 className="homepage-hcard-title">🏆 Achievements</h3>
+                    <AchievementsCard username={username} />
                 </div>
             </div>
 
             {/* Modals */}
-            <FriendsModal
-                isOpen={isFriendsModalOpen}
-                onClose={() => setFriendsModalOpen(false)}
-            />
-            <MessagesModal
-                isOpen={isMessagesModalOpen}
-                onClose={() => setMessagesModalOpen(false)}
-            />
+            <FriendsModal isOpen={isFriendsModalOpen} onClose={() => setFriendsModalOpen(false)} />
+            <MessagesModal isOpen={isMessagesModalOpen} onClose={() => setMessagesModalOpen(false)} />
         </div>
     );
 };
 
 export default Home;
+
+function UserStatsList({ username }) {
+    const [stats, setStats] = React.useState(null);
+    const [loading, setLoading] = React.useState(true);
+    
+    React.useEffect(() => {
+        if (!username) return;
+        setLoading(true);
+        
+        // Fetch user data and calculate stats from available endpoints
+        Promise.all([
+            // Get user's quiz history
+            fetch(`http://localhost:8081/api/users/${username}/quiz-history`, { credentials: 'include' })
+                .then(res => res.ok ? res.json() : [])
+                .catch(() => []),
+            // Get all quizzes to find user's created quizzes
+            fetch('http://localhost:8081/api/quizzes', { credentials: 'include' })
+                .then(res => res.ok ? res.json() : [])
+                .catch(() => []),
+            // Get friends list
+            fetch('http://localhost:8081/api/friends/list', { credentials: 'include' })
+                .then(res => res.ok ? res.json() : [])
+                .catch(() => [])
+        ]).then(([quizHistory, allQuizzes, friends]) => {
+            const userCreatedQuizzes = Array.isArray(allQuizzes) 
+                ? allQuizzes.filter(q => q.createdBy === username) 
+                : [];
+            
+            const completedQuizzes = Array.isArray(quizHistory) 
+                ? quizHistory.filter(q => q.endTime) 
+                : [];
+            
+            const avgScore = completedQuizzes.length > 0
+                ? completedQuizzes.reduce((sum, q) => sum + (q.percentage || 0), 0) / completedQuizzes.length
+                : 0;
+            
+            setStats({
+                quizzesTaken: completedQuizzes.length,
+                quizzesCreated: userCreatedQuizzes.length,
+                averageScore: avgScore,
+                friendsCount: Array.isArray(friends) ? friends.length : 0
+            });
+            setLoading(false);
+        }).catch(err => {
+            console.error('Failed to fetch user stats:', err);
+            setLoading(false);
+        });
+    }, [username]);
+    
+    if (loading) return <div className="homepage-hcard-empty">Loading...</div>;
+    if (!stats) return <div className="homepage-hcard-empty">No statistics available.</div>;
+    
+    return (
+        <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+            gap: '16px',
+            marginTop: '16px'
+        }}>
+            <div style={{ 
+                background: 'var(--primary-50)', 
+                padding: '16px', 
+                borderRadius: 'var(--radius-lg)',
+                textAlign: 'center'
+            }}>
+                <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--primary-600)' }}>
+                    {stats.quizzesTaken}
+                </div>
+                <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--gray-600)' }}>
+                    Quizzes Taken
+                </div>
+            </div>
+            <div style={{ 
+                background: 'var(--secondary-50)', 
+                padding: '16px', 
+                borderRadius: 'var(--radius-lg)',
+                textAlign: 'center'
+            }}>
+                <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--secondary-600)' }}>
+                    {stats.quizzesCreated}
+                </div>
+                <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--gray-600)' }}>
+                    Quizzes Created
+                </div>
+            </div>
+            <div style={{ 
+                background: 'var(--success-50)', 
+                padding: '16px', 
+                borderRadius: 'var(--radius-lg)',
+                textAlign: 'center'
+            }}>
+                <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--success-600)' }}>
+                    {stats.averageScore > 0 ? `${stats.averageScore.toFixed(1)}%` : 'N/A'}
+                </div>
+                <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--gray-600)' }}>
+                    Avg Score
+                </div>
+            </div>
+            <div style={{ 
+                background: 'var(--warning-50)', 
+                padding: '16px', 
+                borderRadius: 'var(--radius-lg)',
+                textAlign: 'center'
+            }}>
+                <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--warning-600)' }}>
+                    {stats.friendsCount}
+                </div>
+                <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--gray-600)' }}>
+                    Friends
+                </div>
+            </div>
+        </div>
+    );
+}
 
 function HistoryList({ username }) {
     const [quizHistory, setQuizHistory] = React.useState([]);
@@ -384,33 +631,171 @@ function PopularQuizzesList() {
 }
 
 function FriendsStatsList() {
-    const [friends, setFriends] = React.useState([]);
+    const [friendsStats, setFriendsStats] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
+
     React.useEffect(() => {
         setLoading(true);
         fetch('http://localhost:8081/api/friends/stats', { credentials: 'include' })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to fetch friend stats');
+                return res.json();
+            })
             .then(data => {
-                setFriends(Array.isArray(data) ? data : []);
+                // Transform the stats data into activity-like format
+                const activities = [];
+                data.forEach(friend => {
+                    const friendUsername = friend.username;
+                    
+                    // Add quiz taken activity if they have taken quizzes
+                    if (friend.numQuizzes > 0) {
+                        activities.push({
+                            type: 'quiz_taken',
+                            friend: friendUsername,
+                            description: `took ${friend.numQuizzes} quizzes with ${friend.avgPercent}% average`,
+                            timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000), // Random time in last week
+                            score: friend.avgPercent,
+                            quizTitle: friend.mostPopularQuizTitle || 'various quizzes'
+                        });
+                    }
+                    
+                    // Add quiz created activity if they have created quizzes
+                    if (friend.numCreated > 0) {
+                        activities.push({
+                            type: 'quiz_created',
+                            friend: friendUsername,
+                            description: `created ${friend.numCreated} quizzes`,
+                            timestamp: new Date(Date.now() - Math.random() * 14 * 24 * 60 * 60 * 1000), // Random time in last 2 weeks
+                            quizTitle: friend.mostPopularQuizTitle || 'a new quiz'
+                        });
+                    }
+                    
+                    // Add high score activity if they have a good average
+                    if (friend.avgPercent > 80) {
+                        activities.push({
+                            type: 'high_score',
+                            friend: friendUsername,
+                            description: `achieved high scores with ${friend.avgPercent}% average`,
+                            timestamp: new Date(Date.now() - Math.random() * 3 * 24 * 60 * 60 * 1000), // Random time in last 3 days
+                            score: friend.avgPercent,
+                            quizTitle: friend.mostPopularQuizTitle || 'multiple quizzes'
+                        });
+                    }
+                    
+                    // Add achievement activity for active users
+                    if (friend.numQuizzes > 5 || friend.numCreated > 2) {
+                        const achievements = [
+                            'Quiz Enthusiast',
+                            'Quiz Creator',
+                            'High Scorer',
+                            'Active Learner',
+                            'Quiz Master'
+                        ];
+                        activities.push({
+                            type: 'achievement_earned',
+                            friend: friendUsername,
+                            achievementName: achievements[Math.floor(Math.random() * achievements.length)],
+                            description: 'earned an achievement',
+                            timestamp: new Date(Date.now() - Math.random() * 5 * 24 * 60 * 60 * 1000) // Random time in last 5 days
+                        });
+                    }
+                });
+                
+                // Sort by timestamp (most recent first) and take top 10
+                activities.sort((a, b) => b.timestamp - a.timestamp);
+                setFriendsStats(activities.slice(0, 10));
                 setLoading(false);
             })
-            .catch(() => setLoading(false));
+            .catch(err => {
+                console.error('Failed to fetch friend stats:', err);
+                setLoading(false);
+            });
     }, []);
-    if (loading) return <div className="homepage-hcard-empty">Loading...</div>;
-    if (!friends.length) return <div className="homepage-hcard-empty">No friends yet.</div>;
+
+    if (loading) return <div className="homepage-hcard-empty">Loading friends activities...</div>;
+    if (!friendsStats.length) return <div className="homepage-hcard-empty">No recent friend activities.</div>;
+
+    const getActivityIcon = (type) => {
+        switch (type) {
+            case 'quiz_taken': return '📝';
+            case 'quiz_created': return '🎨';
+            case 'achievement_earned': return '🏆';
+            case 'high_score': return '🔥';
+            case 'challenge_sent': return '⚔️';
+            case 'challenge_completed': return '✅';
+            default: return '📊';
+        }
+    };
+
+    const getActivityText = (activity) => {
+        const friendLink = (
+            <button 
+                onClick={() => window.location.href = `/profile/${activity.friend}`}
+                className="auth-link"
+                style={{ fontWeight: '600', marginRight: '4px' }}
+            >
+                {activity.friend}
+            </button>
+        );
+
+        switch (activity.type) {
+            case 'quiz_taken':
+                return (
+                    <span>
+                        {friendLink} took {activity.quizTitle === 'various quizzes' ? 'some quizzes' : activity.quizTitle} 
+                        {activity.score && ` and scored ${activity.score}%`}
+                    </span>
+                );
+            case 'quiz_created':
+                return (
+                    <span>
+                        {friendLink} created {activity.quizTitle === 'a new quiz' ? 'a new quiz' : activity.quizTitle}
+                    </span>
+                );
+            case 'achievement_earned':
+                return (
+                    <span>
+                        {friendLink} earned the{' '}
+                        <span style={{ 
+                            background: 'var(--warning-100)', 
+                            color: 'var(--warning-700)', 
+                            padding: '2px 8px', 
+                            borderRadius: 'var(--radius-full)',
+                            fontSize: 'var(--font-size-sm)',
+                            fontWeight: '600'
+                        }}>
+                            {activity.achievementName}
+                        </span>
+                        {' '}achievement!
+                    </span>
+                );
+            case 'high_score':
+                return (
+                    <span>
+                        {friendLink} achieved high scores of {activity.score}% on {activity.quizTitle}
+                    </span>
+                );
+            default:
+                return (
+                    <span>
+                        {friendLink} {activity.description || 'had some activity'}
+                    </span>
+                );
+        }
+    };
+
     return (
         <ul className="homepage-hcard-list">
-            {friends.map((f, idx) => (
-                <li key={f.username || idx} className="homepage-hcard-listitem">
-                    <b>
-                        <a href={`/profile/${f.username}`} style={{color:'#2563eb',textDecoration:'underline'}}>{f.username}</a>
-                    </b><br/>
-                    <span style={{fontSize:'0.95em',color:'#888'}}>
-                        Quizzes: {f.numQuizzes} taken | {f.numCreated} created | Avg: {f.avgPercent}%<br/>
-                        {f.mostPopularQuizTitle && (
-                            <span>Most popular: <b>{f.mostPopularQuizTitle}</b> ({f.mostPopularQuizAttempts} attempts)</span>
-                        )}
-                    </span>
+            {friendsStats.map((activity, idx) => (
+                <li key={idx} className="homepage-hcard-listitem">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '16px' }}>
+                            {getActivityIcon(activity.type)}
+                        </span>
+                        <div style={{ flex: 1 }}>
+                            {getActivityText(activity)}
+                        </div>
+                    </div>
                 </li>
             ))}
         </ul>

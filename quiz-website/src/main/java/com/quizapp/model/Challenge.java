@@ -28,6 +28,14 @@ public class Challenge {
     @Column(name = "seen", nullable = false)
     private boolean seen = false;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private ChallengeStatus status = ChallengeStatus.PENDING;
+
+    public enum ChallengeStatus {
+        PENDING, ACCEPTED, DECLINED, COMPLETED
+    }
+
     // Constructors
     public Challenge() {}
 
@@ -36,6 +44,7 @@ public class Challenge {
         this.challenged = challenged;
         this.quiz = quiz;
         this.createdAt = LocalDateTime.now();
+        this.status = ChallengeStatus.PENDING;
     }
 
     // Getters and Setters
@@ -85,5 +94,13 @@ public class Challenge {
 
     public void setSeen(boolean seen) {
         this.seen = seen;
+    }
+
+    public ChallengeStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ChallengeStatus status) {
+        this.status = status;
     }
 }

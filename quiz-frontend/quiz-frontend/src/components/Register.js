@@ -1,65 +1,167 @@
-import React, {useEffect, useState} from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        document.title = "Register";
-    }, []);
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-            // Create form data to match Spring Security's form login
-            const formData = new FormData();
-            formData.append('username', username);
-            formData.append('password', password);
+        setIsLoading(true);
+        setError('');
 
-            const response = await axios.post('http://localhost:8081/auth/signup', formData, {
+        if (password !== confirmPassword) {
+            setError('Passwords do not match');
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:8081/api/auth/register', {
+                method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
+                    'Content-Type': 'application/json',
                 },
-                withCredentials: true // Important for session cookies
+                body: JSON.stringify({ username, password }),
             });
 
-            if (response.status === 200) {
+            if (response.ok) {
                 navigate('/login');
+            } else {
+                const errorData = await response.json();
+                setError(errorData.message || 'Registration failed');
             }
         } catch (err) {
-            setError(err.response?.data || 'An error occurred during registration');
+            setError('Network error. Please try again.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <div className="auth-container">
-            <img src={`${process.env.PUBLIC_URL}/AppLogo.png`} alt="Logo" width="120"/>
-            <h2>Create Account</h2>
+        <div className="auth-container auth-container-narrow fade-in">
+            <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+                <h1 style={{ 
+                    background: 'linear-gradient(135deg, var(--primary-600), var(--secondary-600))',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    marginBottom: '8px',
+                    fontSize: 'var(--font-size-4xl)'
+                }}>
+                    🎯 Join QuizMaster
+                </h1>
+                <p style={{ color: 'var(--gray-600)', fontSize: 'var(--font-size-lg)' }}>
+                    Create your account and start creating amazing quizzes!
+                </p>
+            </div>
+
+            {error && <div className="auth-error">{error}</div>}
+
             <form onSubmit={handleSubmit} className="auth-form">
-                {error && <div className="auth-error">{error}</div>}
-                <input
-                    type="text"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
-                <button type="submit">Register</button>
+                <div style={{ width: '100%' }}>
+                    <label htmlFor="username" style={{ 
+                        display: 'block', 
+                        marginBottom: '8px', 
+                        color: 'var(--gray-700)', 
+                        fontWeight: '600',
+                        fontSize: 'var(--font-size-sm)'
+                    }}>
+                        Username
+                    </label>
+                    <input
+                        type="text"
+                        id="username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="Choose a username"
+                        required
+                        style={{ width: '100%' }}
+                    />
+                </div>
+
+
+
+                <div style={{ width: '100%' }}>
+                    <label htmlFor="password" style={{ 
+                        display: 'block', 
+                        marginBottom: '8px', 
+                        color: 'var(--gray-700)', 
+                        fontWeight: '600',
+                        fontSize: 'var(--font-size-sm)'
+                    }}>
+                        Password
+                    </label>
+                    <input
+                        type="password"
+                        id="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Create a password"
+                        required
+                        style={{ width: '100%' }}
+                    />
+                </div>
+
+                <div style={{ width: '100%' }}>
+                    <label htmlFor="confirmPassword" style={{ 
+                        display: 'block', 
+                        marginBottom: '8px', 
+                        color: 'var(--gray-700)', 
+                        fontWeight: '600',
+                        fontSize: 'var(--font-size-sm)'
+                    }}>
+                        Confirm Password
+                    </label>
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Confirm your password"
+                        required
+                        style={{ width: '100%' }}
+                    />
+                </div>
+
+                <button 
+                    type="submit" 
+                    disabled={isLoading}
+                    style={{ width: '100%', marginTop: '8px' }}
+                >
+                    {isLoading ? (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                            <div className="loading" style={{ width: '16px', height: '16px' }}></div>
+                            Creating account...
+                        </div>
+                    ) : (
+                        'Create Account'
+                    )}
+                </button>
             </form>
-            <p>
-                Already have an account?{' '}
-                <button className="auth-link" onClick={() => navigate('/login')}>Sign in here</button>
-            </p>
+
+            <div style={{ 
+                textAlign: 'center', 
+                marginTop: '24px', 
+                padding: '16px',
+                background: 'var(--gray-50)',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--gray-200)'
+            }}>
+                <p style={{ margin: '0 0 12px 0', color: 'var(--gray-600)' }}>
+                    Already have an account?
+                </p>
+                <button 
+                    onClick={() => navigate('/login')} 
+                    className="btn-outline"
+                    style={{ fontSize: 'var(--font-size-sm)' }}
+                >
+                    Sign In
+                </button>
+            </div>
         </div>
     );
 };

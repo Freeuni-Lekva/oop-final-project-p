@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import './Quiz.css';
 
 const QuizSummary = () => {
     const { quizId } = useParams();
@@ -204,141 +203,353 @@ const QuizSummary = () => {
         }
     };
 
-    if (error) return <div>{error}</div>;
-    if (!quiz) return <div>Loading...</div>;
+    if (error) {
+        return (
+            <div className="auth-container" style={{ textAlign: 'center' }}>
+                <div className="auth-error">{error}</div>
+                <button onClick={() => navigate('/quizzes')} className="btn-primary">
+                    Back to Quizzes
+                </button>
+            </div>
+        );
+    }
+    
+    if (!quiz) {
+        return (
+            <div className="auth-container" style={{ textAlign: 'center' }}>
+                <div className="loading" style={{ width: '40px', height: '40px', margin: '20px auto' }}></div>
+                <p>Loading quiz details...</p>
+            </div>
+        );
+    }
 
     return (
-        <div className="quiz-summary-container">
-            <div className="quiz-summary-header">
-                <div className="quiz-summary-title">{quiz.title}</div>
-                <div className="quiz-summary-meta">{quiz.description}</div>
-                <div className="quiz-summary-meta">
-                    Created by: {quiz.createdBy ? (
-                        <a href={`/profile/${quiz.createdBy}`} style={{ color: '#2563eb', textDecoration: 'underline' }}>{quiz.createdBy}</a>
-                    ) : (
-                        <b>{quiz.createdBy || 'Unknown'}</b>
-                    )}
+        <div className="homepage-bg">
+            {/* Header */}
+            <div className="card" style={{ 
+                position: 'fixed', 
+                top: '24px', 
+                left: '32px', 
+                right: '32px',
+                zIndex: 2000, 
+                padding: '16px 24px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <h2 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--gray-900)' }}>
+                        📊 Quiz Summary
+                    </h2>
+                </div>
+                
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <button 
+                        onClick={() => navigate('/quizzes')} 
+                        className="btn-outline"
+                        style={{ fontSize: '14px', padding: '8px 16px' }}
+                    >
+                        🔍 All Quizzes
+                    </button>
+                    <button 
+                        onClick={() => navigate('/home')} 
+                        className="btn-outline"
+                        style={{ fontSize: '14px', padding: '8px 16px' }}
+                    >
+                        🏠 Home
+                    </button>
                 </div>
             </div>
-            {/* Stats */}
-            {stats && (
-                <div className="quiz-summary-meta" style={{ marginBottom: 16 }}>
-                    <b>Stats:</b> Avg Score: {stats.averageScore}%, Avg Time: {stats.averageTime} min, Attempts: {stats.totalAttempts}, Highest Score: {stats.highestScore}
+
+            <div className="homepage-vertical" style={{ marginTop: '100px' }}>
+                {/* Quiz Header */}
+                <div className="card" style={{ textAlign: 'center', marginBottom: '24px' }}>
+                    <h1 style={{ 
+                        background: 'linear-gradient(135deg, var(--primary-600), var(--secondary-600))',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        marginBottom: '16px',
+                        fontSize: 'var(--font-size-3xl)'
+                    }}>
+                        {quiz.title}
+                    </h1>
+                    <p style={{ 
+                        color: 'var(--gray-600)', 
+                        fontSize: 'var(--font-size-lg)',
+                        marginBottom: '16px'
+                    }}>
+                        {quiz.description || 'No description available.'}
+                    </p>
+                    <div style={{ 
+                        color: 'var(--gray-500)',
+                        fontSize: 'var(--font-size-sm)'
+                    }}>
+                        Created by: {quiz.createdBy ? (
+                            <button 
+                                onClick={() => navigate(`/profile/${quiz.createdBy}`)}
+                                className="auth-link"
+                                style={{ marginLeft: '4px' }}
+                            >
+                                {quiz.createdBy}
+                            </button>
+                        ) : (
+                            <span style={{ marginLeft: '4px' }}>Unknown</span>
+                        )}
+                    </div>
                 </div>
-            )}
-            {/* User History */}
-            <div className="quiz-summary-section">
-                <h4>Your Past Performance</h4>
-                <div style={{ margin: '8px 0' }}>
-                    <label>Sort by: </label>
-                    <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={{ marginLeft: '8px', padding: '4px 8px', borderRadius: '4px', border: '1px solid #cbd5e1' }}>
-                        <option value="date">Date</option>
-                        <option value="percent">Percent Correct</option>
-                        <option value="time">Time Taken</option>
-                    </select>
+
+                {/* Statistics Overview */}
+                {stats && (
+                    <div className="homepage-hcard">
+                        <h3 className="homepage-hcard-title">📈 Quiz Statistics</h3>
+                        <div style={{ 
+                            display: 'grid', 
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                            gap: '16px',
+                            marginTop: '16px'
+                        }}>
+                            <div style={{ 
+                                background: 'var(--primary-50)', 
+                                padding: '16px', 
+                                borderRadius: 'var(--radius-lg)',
+                                textAlign: 'center'
+                            }}>
+                                <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--primary-600)' }}>
+                                    {stats.averageScore}%
+                                </div>
+                                <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--gray-600)' }}>
+                                    Average Score
+                                </div>
+                            </div>
+                            <div style={{ 
+                                background: 'var(--secondary-50)', 
+                                padding: '16px', 
+                                borderRadius: 'var(--radius-lg)',
+                                textAlign: 'center'
+                            }}>
+                                <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--secondary-600)' }}>
+                                    {stats.averageTime} min
+                                </div>
+                                <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--gray-600)' }}>
+                                    Average Time
+                                </div>
+                            </div>
+                            <div style={{ 
+                                background: 'var(--success-50)', 
+                                padding: '16px', 
+                                borderRadius: 'var(--radius-lg)',
+                                textAlign: 'center'
+                            }}>
+                                <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--success-600)' }}>
+                                    {stats.totalAttempts}
+                                </div>
+                                <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--gray-600)' }}>
+                                    Total Attempts
+                                </div>
+                            </div>
+                            <div style={{ 
+                                background: 'var(--warning-50)', 
+                                padding: '16px', 
+                                borderRadius: 'var(--radius-lg)',
+                                textAlign: 'center'
+                            }}>
+                                <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--warning-600)' }}>
+                                    {stats.highestScore}
+                                </div>
+                                <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--gray-600)' }}>
+                                    Highest Score
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Your Performance */}
+                <div className="homepage-hcard">
+                    <h3 className="homepage-hcard-title">📊 Your Performance</h3>
+                    <div style={{ marginBottom: '16px' }}>
+                        <label htmlFor="sortBy" style={{ 
+                            color: 'var(--gray-700)', 
+                            fontWeight: '600',
+                            fontSize: 'var(--font-size-sm)',
+                            marginRight: '8px'
+                        }}>
+                            Sort by:
+                        </label>
+                        <select 
+                            id="sortBy"
+                            value={sortBy} 
+                            onChange={e => setSortBy(e.target.value)}
+                            style={{ 
+                                padding: '6px 12px',
+                                borderRadius: 'var(--radius-md)',
+                                border: '1px solid var(--gray-300)',
+                                fontSize: 'var(--font-size-sm)'
+                            }}
+                        >
+                            <option value="date">Date</option>
+                            <option value="percent">Score</option>
+                            <option value="time">Time</option>
+                        </select>
+                    </div>
+                    <ul className="homepage-hcard-list">
+                        {(Array.isArray(userHistory) ? userHistory : []).sort((a, b) => {
+                            if (sortBy === 'percent') return b.percentage - a.percentage;
+                            if (sortBy === 'time') return (a.timeTakenMinutes || 0) - (b.timeTakenMinutes || 0);
+                            return new Date(b.startTime) - new Date(a.startTime);
+                        }).map((attempt, i) => (
+                            <li key={attempt.id} className="homepage-hcard-listitem">
+                                <div className="homepage-hcard-listtitle">
+                                    {new Date(attempt.startTime).toLocaleString()}
+                                </div>
+                                <div className="homepage-hcard-listcontent">
+                                    Score: {attempt.score || 0}/{attempt.totalQuestions} ({Math.round(attempt.percentage || 0)}%)
+                                </div>
+                                <div className="homepage-hcard-listdate">
+                                    Time: {attempt.timeTakenMinutes !== null ? attempt.timeTakenMinutes : 'N/A'} min
+                                </div>
+                            </li>
+                        ))}
+                        {(!Array.isArray(userHistory) || userHistory.length === 0) && (
+                            <li className="homepage-hcard-listitem">
+                                <div className="homepage-hcard-empty">No previous attempts</div>
+                            </li>
+                        )}
+                    </ul>
                 </div>
-                <ul style={{ padding: 0, listStyle: 'none' }}>
-                    {(Array.isArray(userHistory) ? userHistory : []).sort((a, b) => {
-                        if (sortBy === 'percent') return b.percentage - a.percentage;
-                        if (sortBy === 'time') return (a.timeTakenMinutes || 0) - (b.timeTakenMinutes || 0);
-                        return new Date(b.startTime) - new Date(a.startTime);
-                    }).map((attempt, i) => (
-                        <li key={attempt.id} style={{ marginBottom: 6 }}>
-                            {new Date(attempt.startTime).toLocaleString()} — {attempt.score || 0}/{attempt.totalQuestions} ({Math.round(attempt.percentage || 0)}%) — {attempt.timeTakenMinutes !== null ? attempt.timeTakenMinutes : 'N/A'} min
-                        </li>
-                    ))}
-                    {(!Array.isArray(userHistory) || userHistory.length === 0) && (
-                        <li style={{ color: '#666', fontStyle: 'italic' }}>No previous attempts</li>
-                    )}
-                </ul>
+
+                {/* Top Performers */}
+                <div className="homepage-grid">
+                    <div className="homepage-hcard">
+                        <h3 className="homepage-hcard-title">🏆 Top Performers (All Time)</h3>
+                        <ul className="homepage-hcard-list">
+                            {(Array.isArray(topScores) ? topScores : []).map((attempt, i) => (
+                                <li key={attempt.id} className="homepage-hcard-listitem">
+                                    <div className="homepage-hcard-listtitle">
+                                        #{i + 1} {attempt.username || 'User'}
+                                    </div>
+                                    <div className="homepage-hcard-listcontent">
+                                        {attempt.score || 0}/{attempt.totalQuestions} ({Math.round(attempt.percentage || 0)}%)
+                                    </div>
+                                </li>
+                            ))}
+                            {(!Array.isArray(topScores) || topScores.length === 0) && (
+                                <li className="homepage-hcard-listitem">
+                                    <div className="homepage-hcard-empty">No attempts yet</div>
+                                </li>
+                            )}
+                        </ul>
+                    </div>
+
+                    <div className="homepage-hcard">
+                        <h3 className="homepage-hcard-title">🔥 Top Performers (Today)</h3>
+                        <ul className="homepage-hcard-list">
+                            {(Array.isArray(topScoresToday) ? topScoresToday : []).map((attempt, i) => (
+                                <li key={attempt.id} className="homepage-hcard-listitem">
+                                    <div className="homepage-hcard-listtitle">
+                                        #{i + 1} {attempt.username || 'User'}
+                                    </div>
+                                    <div className="homepage-hcard-listcontent">
+                                        {attempt.score || 0}/{attempt.totalQuestions} ({Math.round(attempt.percentage || 0)}%)
+                                    </div>
+                                </li>
+                            ))}
+                            {(!Array.isArray(topScoresToday) || topScoresToday.length === 0) && (
+                                <li className="homepage-hcard-listitem">
+                                    <div className="homepage-hcard-empty">No attempts today</div>
+                                </li>
+                            )}
+                        </ul>
+                    </div>
+                </div>
+
+                {/* Recent Activity */}
+                <div className="homepage-hcard">
+                    <h3 className="homepage-hcard-title">🕒 Recent Activity</h3>
+                    <ul className="homepage-hcard-list">
+                        {(Array.isArray(recentScores) ? recentScores : []).map((attempt, i) => (
+                            <li key={attempt.id} className="homepage-hcard-listitem">
+                                <div className="homepage-hcard-listtitle">
+                                    {attempt.username || 'User'}
+                                </div>
+                                <div className="homepage-hcard-listcontent">
+                                    {attempt.score || 0}/{attempt.totalQuestions} ({Math.round(attempt.percentage || 0)}%)
+                                </div>
+                                <div className="homepage-hcard-listdate">
+                                    {attempt.timeTakenMinutes !== null ? attempt.timeTakenMinutes : 'N/A'} min ago
+                                </div>
+                            </li>
+                        ))}
+                        {(!Array.isArray(recentScores) || recentScores.length === 0) && (
+                            <li className="homepage-hcard-listitem">
+                                <div className="homepage-hcard-empty">No recent attempts</div>
+                            </li>
+                        )}
+                    </ul>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="card" style={{ textAlign: 'center' }}>
+                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                        <button 
+                            onClick={() => navigate(`/quiz/${quiz.id}`)}
+                            className="btn-primary"
+                            style={{ fontSize: '16px', padding: '12px 24px' }}
+                        >
+                            🚀 Start Quiz
+                        </button>
+                        {quiz.practiceMode && (
+                            <button 
+                                onClick={() => navigate(`/quiz/${quiz.id}?practice=true`)}
+                                className="btn-secondary"
+                                style={{ fontSize: '16px', padding: '12px 24px' }}
+                            >
+                                🎯 Practice Mode
+                            </button>
+                        )}
+                        <button 
+                            onClick={() => {
+                                fetchFriends();
+                                setChallengeModalOpen(true);
+                            }}
+                            className="btn-success"
+                            style={{ fontSize: '16px', padding: '12px 24px' }}
+                        >
+                            ⚔️ Challenge Friend
+                        </button>
+                    </div>
+                </div>
             </div>
-            {/* Top Performers (All Time) */}
-            <div className="quiz-summary-section">
-                <h4>Top Performers (All Time)</h4>
-                <ul style={{ padding: 0, listStyle: 'none' }}>
-                    {(Array.isArray(topScores) ? topScores : []).map((attempt, i) => (
-                        <li key={attempt.id}>
-                            {attempt.user?.username || 'User'}: {attempt.score || 0}/{attempt.totalQuestions} ({Math.round(attempt.percentage || 0)}%)
-                        </li>
-                    ))}
-                    {(!Array.isArray(topScores) || topScores.length === 0) && (
-                        <li style={{ color: '#666', fontStyle: 'italic' }}>No attempts yet</li>
-                    )}
-                </ul>
-            </div>
-            {/* Top Performers (Today) */}
-            <div className="quiz-summary-section">
-                <h4>Top Performers (Today)</h4>
-                <ul style={{ padding: 0, listStyle: 'none' }}>
-                    {(Array.isArray(topScoresToday) ? topScoresToday : []).map((attempt, i) => (
-                        <li key={attempt.id}>
-                            {attempt.user?.username || 'User'}: {attempt.score || 0}/{attempt.totalQuestions} ({Math.round(attempt.percentage || 0)}%)
-                        </li>
-                    ))}
-                    {(!Array.isArray(topScoresToday) || topScoresToday.length === 0) && (
-                        <li style={{ color: '#666', fontStyle: 'italic' }}>No attempts today</li>
-                    )}
-                </ul>
-            </div>
-            {/* Recent Test Takers */}
-            <div className="quiz-summary-section">
-                <h4>Recent Test Takers</h4>
-                <ul style={{ padding: 0, listStyle: 'none' }}>
-                    {(Array.isArray(recentScores) ? recentScores : []).map((attempt, i) => (
-                        <li key={attempt.id}>
-                            {attempt.user?.username || 'User'}: {attempt.score || 0}/{attempt.totalQuestions} ({Math.round(attempt.percentage || 0)}%) — {attempt.timeTakenMinutes !== null ? attempt.timeTakenMinutes : 'N/A'} min
-                        </li>
-                    ))}
-                    {(!Array.isArray(recentScores) || recentScores.length === 0) && (
-                        <li style={{ color: '#666', fontStyle: 'italic' }}>No recent attempts</li>
-                    )}
-                </ul>
-            </div>
-            <div className="quiz-summary-actions">
-                <button className="quiz-btn quiz-btn-primary" onClick={() => navigate(`/quiz/${quiz.id}`)}>
-                    Start Quiz
-                </button>
-                {quiz.practiceMode && (
-                    <button className="quiz-btn quiz-btn-secondary" onClick={() => navigate(`/quiz/${quiz.id}?practice=true`)}>
-                        Practice Mode
-                    </button>
-                )}
-                <button className="quiz-btn quiz-btn-secondary" onClick={() => {
-                    fetchFriends();
-                    setChallengeModalOpen(true);
-                }}>
-                    Challenge a Friend
-                </button>
-                {isOwner && (
-                    <button className="quiz-btn quiz-btn-secondary" onClick={() => navigate(`/edit-quiz/${quiz.id}`)}>
-                        Edit Quiz
-                    </button>
-                )}
-                {isOwner && (
-                    <button className="quiz-btn quiz-btn-danger" onClick={handleDelete} disabled={deleting}>
-                        {deleting ? 'Deleting...' : 'Delete Quiz'}
-                    </button>
-                )}
-                {clearingHistory && (
-                    <button className="quiz-btn quiz-btn-secondary" disabled>
-                        Clearing...
-                    </button>
-                )}
-                {!clearingHistory && (
-                    <button className="quiz-btn quiz-btn-secondary" onClick={handleDeleteHistory}>
-                        Delete History
-                    </button>
-                )}
-            </div>
+
+            {/* Challenge Modal */}
             {isChallengeModalOpen && (
                 <div className="modal-overlay">
                     <div className="modal-content">
-                        <h3>Challenge a Friend</h3>
-                        <p>Select a friend to challenge to take this quiz:</p>
+                        <div className="modal-header">
+                            <h3 style={{ margin: 0, color: 'var(--success-600)' }}>⚔️ Challenge a Friend</h3>
+                            <button 
+                                onClick={() => setChallengeModalOpen(false)} 
+                                className="modal-close"
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <p style={{ marginBottom: '16px', color: 'var(--gray-600)' }}>
+                            Select a friend to challenge to take this quiz:
+                        </p>
                         <select
                             value={selectedFriend}
                             onChange={(e) => setSelectedFriend(e.target.value)}
-                            style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+                            style={{ 
+                                width: '100%', 
+                                padding: '12px', 
+                                marginBottom: '16px',
+                                borderRadius: 'var(--radius-lg)',
+                                border: '2px solid var(--gray-200)',
+                                fontSize: 'var(--font-size-base)'
+                            }}
                         >
                             <option value="">Select a friend...</option>
                             {friends.map(friend => (
@@ -347,17 +558,27 @@ const QuizSummary = () => {
                                 </option>
                             ))}
                         </select>
+                        {friends.length === 0 && (
+                            <p style={{ 
+                                color: 'var(--gray-500)', 
+                                fontSize: 'var(--font-size-sm)', 
+                                fontStyle: 'italic',
+                                marginBottom: '16px'
+                            }}>
+                                No friends found. Add some friends first!
+                            </p>
+                        )}
                         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                             <button
                                 onClick={() => setChallengeModalOpen(false)}
-                                style={{ padding: '8px 16px' }}
+                                className="btn-outline"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleChallengeFriend}
                                 disabled={challenging || !selectedFriend}
-                                style={{ padding: '8px 16px', backgroundColor: '#2563eb', color: 'white' }}
+                                className="btn-success"
                             >
                                 {challenging ? 'Sending...' : 'Send Challenge'}
                             </button>

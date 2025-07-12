@@ -1,63 +1,140 @@
-import React, {useEffect, useState} from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        document.title = "Login";
-    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
+        setError('');
+
         try {
-            const response = await axios.post('http://localhost:8081/api/auth/login', {
-                username,
-                password
-            }, {
-                withCredentials: true
+            const response = await fetch('http://localhost:8081/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ username, password }),
             });
 
-            if (response.status === 200) {
-                localStorage.setItem('user', JSON.stringify({ username }));
+            if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem('user', JSON.stringify(data));
                 navigate('/home');
+            } else {
+                const errorData = await response.json();
+                setError(errorData.message || 'Login failed');
             }
         } catch (err) {
-            setError(err.response?.data || 'Invalid username or password');
+            setError('Network error. Please try again.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <div className="auth-container">
-            <img src={`${process.env.PUBLIC_URL}/AppLogo.png`} alt="Logo" width="120"/>
+        <div className="auth-container auth-container-narrow fade-in">
+            <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+                <h1 style={{ 
+                    background: 'linear-gradient(135deg, var(--primary-600), var(--secondary-600))',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    marginBottom: '8px',
+                    fontSize: 'var(--font-size-4xl)'
+                }}>
+                    🎯 QuizMaster
+                </h1>
+                <p style={{ color: 'var(--gray-600)', fontSize: 'var(--font-size-lg)' }}>
+                    Welcome back! Sign in to continue your quiz journey.
+                </p>
+            </div>
 
-            <h2>Sign In</h2>
+            {error && <div className="auth-error">{error}</div>}
+
             <form onSubmit={handleSubmit} className="auth-form">
-                {error && <div className="auth-error">{error}</div>}
-                <input
-                    type="text"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
-                <button type="submit">Login</button>
+                <div style={{ width: '100%' }}>
+                    <label htmlFor="username" style={{ 
+                        display: 'block', 
+                        marginBottom: '8px', 
+                        color: 'var(--gray-700)', 
+                        fontWeight: '600',
+                        fontSize: 'var(--font-size-sm)'
+                    }}>
+                        Username
+                    </label>
+                    <input
+                        type="text"
+                        id="username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="Enter your username"
+                        required
+                        style={{ width: '100%' }}
+                    />
+                </div>
+
+                <div style={{ width: '100%' }}>
+                    <label htmlFor="password" style={{ 
+                        display: 'block', 
+                        marginBottom: '8px', 
+                        color: 'var(--gray-700)', 
+                        fontWeight: '600',
+                        fontSize: 'var(--font-size-sm)'
+                    }}>
+                        Password
+                    </label>
+                    <input
+                        type="password"
+                        id="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Enter your password"
+                        required
+                        style={{ width: '100%' }}
+                    />
+                </div>
+
+                <button 
+                    type="submit" 
+                    disabled={isLoading}
+                    style={{ width: '100%', marginTop: '8px' }}
+                >
+                    {isLoading ? (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                            <div className="loading" style={{ width: '16px', height: '16px' }}></div>
+                            Signing in...
+                        </div>
+                    ) : (
+                        'Sign In'
+                    )}
+                </button>
             </form>
-            <p>
-                Don't have an account?{' '}
-                <button className="auth-link" onClick={() => navigate('/register')}>Register here</button>
-            </p>
+
+            <div style={{ 
+                textAlign: 'center', 
+                marginTop: '24px', 
+                padding: '16px',
+                background: 'var(--gray-50)',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--gray-200)'
+            }}>
+                <p style={{ margin: '0 0 12px 0', color: 'var(--gray-600)' }}>
+                    Don't have an account?
+                </p>
+                <button 
+                    onClick={() => navigate('/register')} 
+                    className="btn-outline"
+                    style={{ fontSize: 'var(--font-size-sm)' }}
+                >
+                    Create Account
+                </button>
+            </div>
         </div>
     );
 };
