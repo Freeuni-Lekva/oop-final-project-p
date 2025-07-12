@@ -22,6 +22,7 @@ const QuizSummary = () => {
     const [challenging, setChallenging] = useState(false);
     const [topScoresToday, setTopScoresToday] = useState([]);
     const [clearingHistory, setClearingHistory] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
         fetch(`http://localhost:8081/api/quizzes/${quizId}`, { credentials: 'include' })
@@ -45,6 +46,10 @@ const QuizSummary = () => {
                     const homeData = await homeRes.json();
                     if (homeData.user) {
                         setCurrentUsername(homeData.user);
+                        // Check if user is admin
+                        if (homeData.role && homeData.role.includes('ROLE_ADMIN')) {
+                            setIsAdmin(true);
+                        }
                         const userRes = await fetch(`http://localhost:8081/api/auth/user/${homeData.user}`);
                         if (userRes.ok) {
                             const user = await userRes.json();
@@ -519,6 +524,26 @@ const QuizSummary = () => {
                         >
                             ⚔️ Challenge Friend
                         </button>
+                        {isAdmin && (
+                            <>
+                                <button 
+                                    onClick={handleDelete}
+                                    disabled={deleting}
+                                    className="btn-danger"
+                                    style={{ fontSize: '16px', padding: '12px 24px' }}
+                                >
+                                    {deleting ? '🗑️ Deleting...' : '🗑️ Delete Quiz'}
+                                </button>
+                                <button 
+                                    onClick={handleDeleteHistory}
+                                    disabled={clearingHistory}
+                                    className="btn-warning"
+                                    style={{ fontSize: '16px', padding: '12px 24px' }}
+                                >
+                                    {clearingHistory ? '🧹 Clearing...' : '🧹 Clear History'}
+                                </button>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
